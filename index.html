@@ -27,7 +27,7 @@ body{
 font-family:'Cairo',sans-serif;
 background:var(--beige);
 padding-top:80px;
-padding-bottom:80px;
+padding-bottom:100px; /* pour ne pas cacher le footer */
 }
 
 header,footer{
@@ -46,7 +46,7 @@ color:#fff;
 }
 
 header{top:0}
-footer{bottom:0}
+footer{bottom:0; padding:10px 0; text-align:center;}
 
 .card{
 border:3px solid var(--or);
@@ -116,7 +116,7 @@ transform:scale(1.2);
 .swal2-html-container .cart-item-top img {
     width:50px;
     height:50px;
-    object-fit: cover; /* images uniformes, même si tailles différentes */
+    object-fit: cover;
     border-radius:6px;
 }
 
@@ -138,6 +138,38 @@ transform:scale(1.2);
     border:1px solid #0f7c4a;
     background:#f6f1e7;
     margin:0 2px;
+}
+
+/* MARQUEE DE BIENVENUE */
+.marquee-container {
+  overflow: hidden;
+  position: relative;
+  background:#fff;
+  border-radius:10px;
+  border:2px solid var(--vert);
+  padding:5px 10px;
+  margin-bottom:15px;
+}
+
+.marquee {
+  display: inline-block;
+  white-space: nowrap;
+  position: relative;
+  animation: marqueeAnim 15s linear infinite;
+  font-weight:bold;
+  color:var(--vert);
+}
+
+@keyframes marqueeAnim {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* FOOTER TEXTE FIXE */
+footer .fixed-text {
+  color: var(--or);
+  font-weight: bold;
+  display:block;
 }
 </style>
 </head>
@@ -187,14 +219,24 @@ transform:scale(1.2);
 </div>
 </div>
 
-<!-- PRODUITS -->
+<!-- MARQUEE BIENVENUE -->
 <div class="container mt-4">
+  <div class="marquee-container">
+    <div class="marquee">
+      Bienvenue dans notre boutique marocaine 🇲🇦 - Amlou, Miel et produits du terroir authentiques !
+    </div>
+  </div>
+</div>
+
+<!-- PRODUITS -->
+<div class="container">
 <div class="row" id="products"></div>
 </div>
 
-<!-- FOOTER -->
-<footer class="text-center p-2">
+<!-- FOOTER FIXE -->
+<footer>
 © Boutique Marocaine
+<span class="fixed-text">Created by : M.Seddik Elidrissi</span>
 </footer>
 
 <!-- JS -->

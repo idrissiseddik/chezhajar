@@ -54,10 +54,13 @@ border-radius:20px;
 box-shadow:0 10px 20px rgba(0,0,0,.15);
 }
 
+/* CARTE PRODUIT : image adaptative */
 .card img{
-height:180px;
-object-fit:cover;
-border-bottom:3px solid var(--or);
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom:3px solid var(--or);
+    border-radius:10px;
 }
 
 .qty{
@@ -95,7 +98,7 @@ color:var(--or);
 transform:scale(1.2);
 }
 
-/* Panier Swal2 : produit sur 2 lignes */
+/* PANIER MODALE : produit sur 2 lignes */
 .swal2-html-container .cart-item {
     display:flex;
     flex-direction:column;
@@ -113,7 +116,7 @@ transform:scale(1.2);
 .swal2-html-container .cart-item-top img {
     width:50px;
     height:50px;
-    object-fit:cover;
+    object-fit: cover; /* images uniformes, même si tailles différentes */
     border-radius:6px;
 }
 
@@ -200,7 +203,7 @@ transform:scale(1.2);
 <script>
 /* PRODUITS */
 const products = [
-{ id:1, name:"Amlou Amandes", price:50, image:"https://via.placeholder.com/300?text=Amlou" },
+{ id:1, name:"Amlou Amandes", price:50, image:"images/amlou.jpg" },
 { id:2, name:"Miel Naturel", price:70, image:"https://via.placeholder.com/300?text=Miel" },
 { id:3, name:"Huile d'Argan", price:90, image:"https://via.placeholder.com/300?text=Argan" }
 ];

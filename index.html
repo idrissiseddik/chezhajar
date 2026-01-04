@@ -515,26 +515,6 @@
       imgElement.alt = 'Image non disponible';
     }
 
-    // Fermer la modale d'image avec la touche Échap
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape') {
-        const imageModal = bootstrap.Modal.getInstance(document.getElementById('imageZoomModal'));
-        if (imageModal) {
-          imageModal.hide();
-        }
-      }
-    });
-
-    // Fermer la modale en cliquant en dehors de l'image
-    document.getElementById('imageZoomModal').addEventListener('click', function(event) {
-      if (event.target === this || event.target.classList.contains('modal-body') || event.target.classList.contains('modal-content')) {
-        const imageModal = bootstrap.Modal.getInstance(this);
-        if (imageModal) {
-          imageModal.hide();
-        }
-      }
-    });
-
     // Calculer le total des produits
     function calculateProductsTotal() {
       return Object.entries(cart).reduce((total, [id, qty]) => {
@@ -544,14 +524,7 @@
       }, 0);
     }
 
-    // Calculer le total avec livraison
-    function calculateTotalWithDelivery() {
-      const productsTotal = calculateProductsTotal();
-      const deliveryFee = deliveryOption === 'avec' ? DELIVERY_FEE : 0;
-      return productsTotal + deliveryFee;
-    }
-
-    // Mettre à jour l'affichage des totaux
+    // Mettre à jour l'affichage des totaux (FONCTION CORRIGÉE POUR MOBILE)
     function updateTotalDisplay() {
       const productsTotal = calculateProductsTotal();
       const deliveryFee = deliveryOption === 'avec' ? DELIVERY_FEE : 0;
@@ -560,50 +533,101 @@
       document.getElementById('subtotal-products').textContent = formatMAD(productsTotal);
       document.getElementById('delivery-fee').textContent = formatMAD(deliveryFee);
       document.getElementById('cart-total').textContent = formatMAD(total);
+      
+      // FORCER le recalcul et le rendu sur mobile
+      if (cartModalInstance) {
+        document.getElementById('cartModal').dispatchEvent(new Event('totalsUpdated'));
+      }
     }
 
-    // Gestion des options de livraison
+    // Gestion des options de livraison (CORRIGÉ POUR MOBILE)
     function setupDeliveryOptions() {
       const sansLivraisonOption = document.getElementById('optionSansLivraison');
       const avecLivraisonOption = document.getElementById('optionAvecLivraison');
       const radioSans = document.getElementById('sansLivraison');
       const radioAvec = document.getElementById('avecLivraison');
       
-      // Cliquer sur l'option "Sans livraison"
-      sansLivraisonOption.addEventListener('click', function() {
-        deliveryOption = 'sans';
-        radioSans.checked = true;
-        sansLivraisonOption.classList.add('active');
-        avecLivraisonOption.classList.remove('active');
-        updateTotalDisplay();
-      });
-      
-      // Cliquer sur l'option "Avec livraison"
-      avecLivraisonOption.addEventListener('click', function() {
-        deliveryOption = 'avec';
-        radioAvec.checked = true;
-        avecLivraisonOption.classList.add('active');
-        sansLivraisonOption.classList.remove('active');
-        updateTotalDisplay();
-      });
-      
-      // Gérer les boutons radio directement
-      radioSans.addEventListener('change', function() {
-        if (this.checked) {
-          deliveryOption = 'sans';
+      // Utiliser des événements de clic pour tous les éléments (mobile-friendly)
+      const handleDeliveryChange = (option) => {
+        deliveryOption = option;
+        
+        // Mettre à jour les boutons radio
+        if (option === 'sans') {
+          radioSans.checked = true;
+          radioAvec.checked = false;
           sansLivraisonOption.classList.add('active');
           avecLivraisonOption.classList.remove('active');
-          updateTotalDisplay();
+        } else {
+          radioAvec.checked = true;
+          radioSans.checked = false;
+          avecLivraisonOption.classList.add('active');
+          sansLivraisonOption.classList.remove('active');
+        }
+        
+        // Forcer la mise à jour du total
+        updateTotalDisplay();
+        
+        // Feedback visuel sur mobile
+        if (option === 'avec') {
+          SwalWithHighZIndex.fire({
+            icon: 'info',
+            title: 'Livraison ajoutée',
+            text: 'Frais de livraison: +10 DH',
+            timer: 800,
+            showConfirmButton: false,
+            position: 'top-end',
+            toast: true
+          });
+        }
+      };
+      
+      // Cliquer sur l'option "Sans livraison" - TOUCH event pour mobile
+      sansLivraisonOption.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleDeliveryChange('sans');
+      });
+      
+      // Cliquer sur l'option "Avec livraison" - TOUCH event pour mobile
+      avecLivraisonOption.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleDeliveryChange('avec');
+      });
+      
+      // Gérer les labels aussi
+      document.querySelector('label[for="sansLivraison"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        handleDeliveryChange('sans');
+      });
+      
+      document.querySelector('label[for="avecLivraison"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        handleDeliveryChange('avec');
+      });
+      
+      // Événements de changement pour les boutons radio (au cas où)
+      radioSans.addEventListener('change', function() {
+        if (this.checked) {
+          handleDeliveryChange('sans');
         }
       });
       
       radioAvec.addEventListener('change', function() {
         if (this.checked) {
-          deliveryOption = 'avec';
-          avecLivraisonOption.classList.add('active');
-          sansLivraisonOption.classList.remove('active');
-          updateTotalDisplay();
+          handleDeliveryChange('avec');
         }
+      });
+      
+      // FORCER le clic sur mobile avec touchstart
+      sansLivraisonOption.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        handleDeliveryChange('sans');
+      });
+      
+      avecLivraisonOption.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        handleDeliveryChange('avec');
       });
     }
 
@@ -831,6 +855,21 @@
           if(Number(input.value)<1) input.value=1; 
           updateQtyFromModal(id, Number(input.value)); 
         });
+        
+        // Ajouter touch events pour mobile
+        ctrl.querySelector('.btn-decrease').addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          if(Number(input.value)>1) {
+            input.value = Number(input.value)-1; 
+            updateQtyFromModal(id, Number(input.value)); 
+          }
+        });
+        
+        ctrl.querySelector('.btn-increase').addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          input.value = Number(input.value)+1; 
+          updateQtyFromModal(id, Number(input.value)); 
+        });
       });
 
       // Événements du panier - suppression
@@ -1014,6 +1053,11 @@
     document.getElementById('cartModal').addEventListener('hidden.bs.modal', function () {
       cartModalInstance = null;
     });
+    
+    // FORCER la mise à jour initiale
+    setTimeout(() => {
+      updateTotalDisplay();
+    }, 100);
   </script>
 </body>
 </html>

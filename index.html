@@ -98,6 +98,13 @@ flex-direction: column;
     justify-content: center;
     cursor: pointer;
     z-index: 10;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.carousel-btn:hover {
+    opacity: 1;
+    background: rgba(0,0,0,0.8);
 }
 
 .carousel-btn.prev {
@@ -106,10 +113,6 @@ flex-direction: column;
 
 .carousel-btn.next {
     right: 10px;
-}
-
-.carousel-btn:hover {
-    background: rgba(0,0,0,0.7);
 }
 
 .carousel-indicators {
@@ -130,11 +133,17 @@ flex-direction: column;
     background: rgba(255,255,255,0.5);
     cursor: pointer;
     border: 1px solid rgba(0,0,0,0.3);
+    transition: all 0.3s;
 }
 
 .carousel-dot.active {
     background: var(--or);
     border-color: white;
+    transform: scale(1.2);
+}
+
+.carousel-dot:hover {
+    background: var(--or);
 }
 
 /* Contenu de la carte sous l'image - TEXTE CENTRÉ */
@@ -444,6 +453,7 @@ const products = [
 ];
 
 let cart = [];
+let allIntervals = [];
 
 /* FONCTIONS POUR LE MODAL D'IMAGE */
 function openModal(imageSrc) {
@@ -484,39 +494,57 @@ function shuffleProducts(productsArray) {
     return shuffled;
 }
 
-/* GESTION DU CAROUSEL */
+/* GESTION DU CAROUSEL AVEC AUTO-SLIDE */
 class ProductCarousel {
     constructor(productId) {
         this.productId = productId;
         this.currentIndex = 0;
+        this.interval = null;
+        this.autoSlideDelay = 3000; // 3 secondes entre chaque slide
+        this.isHovered = false;
+        this.images = [];
+        this.dots = [];
+    }
+    
+    init() {
+        this.images = document.querySelectorAll(`#carousel-${this.productId} .carousel-image`);
+        this.dots = document.querySelectorAll(`#carousel-${this.productId} .carousel-dot`);
+        
+        // Ajouter les événements hover
+        const carouselElement = document.getElementById(`carousel-${this.productId}`);
+        if (carouselElement) {
+            carouselElement.addEventListener('mouseenter', () => {
+                this.isHovered = true;
+                this.stopAutoSlide();
+            });
+            
+            carouselElement.addEventListener('mouseleave', () => {
+                this.isHovered = false;
+                this.startAutoSlide();
+            });
+        }
     }
     
     next() {
-        const images = document.querySelectorAll(`#carousel-${this.productId} .carousel-image`);
-        const dots = document.querySelectorAll(`#carousel-${this.productId} .carousel-dot`);
-        
-        this.currentIndex = (this.currentIndex + 1) % images.length;
-        this.updateCarousel(images, dots);
+        this.currentIndex = (this.currentIndex + 1) % this.images.length;
+        this.updateCarousel();
     }
     
     prev() {
-        const images = document.querySelectorAll(`#carousel-${this.productId} .carousel-image`);
-        const dots = document.querySelectorAll(`#carousel-${this.productId} .carousel-dot`);
-        
-        this.currentIndex = (this.currentIndex - 1 + images.length) % images.length;
-        this.updateCarousel(images, dots);
+        this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+        this.updateCarousel();
     }
     
     goTo(index) {
-        const images = document.querySelectorAll(`#carousel-${this.productId} .carousel-image`);
-        const dots = document.querySelectorAll(`#carousel-${this.productId} .carousel-dot`);
-        
         this.currentIndex = index;
-        this.updateCarousel(images, dots);
+        this.updateCarousel();
+        
+        // Réinitialiser le timer lorsqu'on clique manuellement
+        this.resetAutoSlide();
     }
     
-    updateCarousel(images, dots) {
-        images.forEach((img, i) => {
+    updateCarousel() {
+        this.images.forEach((img, i) => {
             if (i === this.currentIndex) {
                 img.style.opacity = '1';
                 img.style.zIndex = '1';
@@ -526,20 +554,73 @@ class ProductCarousel {
             }
         });
         
-        dots.forEach((dot, i) => {
+        this.dots.forEach((dot, i) => {
             dot.classList.toggle('active', i === this.currentIndex);
         });
+    }
+    
+    startAutoSlide() {
+        this.stopAutoSlide(); // S'assurer qu'il n'y a pas d'intervalle en cours
+        
+        if (this.images.length > 1) {
+            this.interval = setInterval(() => {
+                if (!this.isHovered) {
+                    this.next();
+                }
+            }, this.autoSlideDelay);
+            
+            allIntervals.push(this.interval);
+        }
+    }
+    
+    stopAutoSlide() {
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+            // Retirer de la liste globale
+            const index = allIntervals.indexOf(this.interval);
+            if (index > -1) {
+                allIntervals.splice(index, 1);
+            }
+        }
+    }
+    
+    resetAutoSlide() {
+        this.stopAutoSlide();
+        this.startAutoSlide();
     }
 }
 
 const carousels = {};
 
-/* RENDRE LES PRODUITS */
+/* DÉMARRER L'AUTO-SLIDE POUR TOUS LES CARROUSELS */
+function startAllAutoSlides() {
+    Object.keys(carousels).forEach(productId => {
+        carousels[productId].init();
+        if (carousels[productId].images.length > 1) {
+            carousels[productId].startAutoSlide();
+        }
+    });
+}
+
+/* ARRÊTER TOUS LES AUTO-SLIDES */
+function stopAllAutoSlides() {
+    Object.keys(carousels).forEach(productId => {
+        carousels[productId].stopAutoSlide();
+    });
+    // Nettoyer tous les intervalles
+    allIntervals.forEach(interval => clearInterval(interval));
+    allIntervals = [];
+}
+
+/* RENDRE LES PRODUITS - Version avec mélange aléatoire */
 function renderProducts() {
-    // Pas besoin de mélanger si vous voulez garder l'ordre
+    // Mélanger les produits aléatoirement
+    const shuffledProducts = shuffleProducts(products);
+    
     let html = '';
     
-    products.forEach(p => {
+    shuffledProducts.forEach(p => {
         const carouselId = `carousel-${p.id}`;
         carousels[p.id] = new ProductCarousel(p.id);
         
@@ -555,19 +636,21 @@ function renderProducts() {
                                  style="${index === 0 ? 'opacity: 1; z-index: 1;' : 'opacity: 0; z-index: 0;'}">
                         `).join('')}
                         
-                        <button class="carousel-btn prev" onclick="carousels[${p.id}].prev()">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="carousel-btn next" onclick="carousels[${p.id}].next()">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                        
-                        <div class="carousel-indicators">
-                            ${p.images.map((_, index) => `
-                                <div class="carousel-dot ${index === 0 ? 'active' : ''}" 
-                                     onclick="carousels[${p.id}].goTo(${index})"></div>
-                            `).join('')}
-                        </div>
+                        ${p.images.length > 1 ? `
+                            <button class="carousel-btn prev" onclick="carousels[${p.id}].prev()">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-btn next" onclick="carousels[${p.id}].next()">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            
+                            <div class="carousel-indicators">
+                                ${p.images.map((_, index) => `
+                                    <div class="carousel-dot ${index === 0 ? 'active' : ''}" 
+                                         onclick="carousels[${p.id}].goTo(${index})"></div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
                 
@@ -590,6 +673,11 @@ function renderProducts() {
     });
     
     document.getElementById('products').innerHTML = html;
+    
+    // Initialiser tous les carrousels
+    setTimeout(() => {
+        startAllAutoSlides();
+    }, 500);
 }
 
 /* MODIFIER QUANTITÉ DANS CARTE */
@@ -611,7 +699,13 @@ function addToCart(id){
     let p=products.find(p=>p.id===id);
     cart.push({...p,qty, image: p.images[0]});
     updateBadge();
-    Swal.fire('Ajouté','Produit ajouté au panier','success');
+    Swal.fire({
+        title: 'Ajouté au panier',
+        text: `${p.name} a été ajouté`,
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+    });
 }
 
 /* METTRE A JOUR LE BADGE */
@@ -667,9 +761,19 @@ function openCart(){
         showCancelButton:true,
         confirmButtonText:'Commander via WhatsApp',
         cancelButtonText:'Continuer mes achats',
-        preConfirm:sendOrder
+        preConfirm:sendOrder,
+        didOpen: () => {
+            // Désactiver auto-slide quand le panier est ouvert
+            stopAllAutoSlides();
+        },
+        willClose: () => {
+            // Réactiver auto-slide quand le panier est fermé
+            startAllAutoSlides();
+        }
     }).then((result)=>{
-        if(result.isDismissed){ renderProducts(); }
+        if(result.isDismissed){ 
+            renderProducts(); 
+        }
     });
 }
 
@@ -742,7 +846,9 @@ function sendOrder(){
 }
 
 // Initialisation au chargement de la page
-renderProducts();
+document.addEventListener('DOMContentLoaded', function() {
+    renderProducts();
+});
 </script>
 
 </body>

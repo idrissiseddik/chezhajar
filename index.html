@@ -401,7 +401,6 @@
 
   <script>
     // ======= PRODUITS MAROCAINS 🇲🇦 =========
-    // Toutes les images sont maintenant dans le dossier "images/"
     const products = [
       { 
         id:1, 
@@ -409,8 +408,8 @@
         price:89, 
         category: 'amlou',
         images:[
-          'images/amlou1.jpg',
-          'images/amlou2.jpg'
+          'images/amlou-premium-1.jpg',
+          'images/amlou-premium-2.jpg'
         ], 
         promo:79 
       },
@@ -465,26 +464,6 @@
         ], 
         promo:85 
       },
-      { 
-        id:7, 
-        name:'Huile d\'Argan Cosmétique - 50ml', 
-        price:159, 
-        category: 'huile',
-        images:[
-          'images/huile-argan-cosmetique-1.jpg'
-        ], 
-        promo:139 
-      },
-      { 
-        id:8, 
-        name:'Miel de Fleurs - 1kg', 
-        price:189, 
-        category: 'miel',
-        images:[
-          'images/miel-fleurs-1.jpg'
-        ], 
-        promo:169 
-      },
     ];
 
     // Fonction pour mélanger aléatoirement un tableau (algorithme de Fisher-Yates)
@@ -503,12 +482,17 @@
     let currentLayout = '2';
     let deliveryOption = 'sans'; // 'sans' ou 'avec'
     const DELIVERY_FEE = 10; // 10 DH de frais de livraison
+    let cartModalInstance = null;
 
     const PHONE = '212661906684'; // Numéro mis à jour
     const formatMAD = v => Number(v).toFixed(2) + ' DH';
 
+    // Configuration de SweetAlert2
     const SwalWithHighZIndex = Swal.mixin({
-      customClass: { container: 'high-z-index-swal' },
+      customClass: { 
+        container: 'high-z-index-swal',
+        popup: 'high-z-index-swal-popup' 
+      },
       didOpen: () => {
         const swalContainer = document.querySelector('.swal2-container');
         if (swalContainer) swalContainer.style.zIndex = '3000';
@@ -623,6 +607,51 @@
       });
     }
 
+    // Fonction pour afficher une alerte d'ajout
+    function showAddToCartAlert(productName, quantity) {
+      SwalWithHighZIndex.fire({
+        icon: 'success',
+        title: 'Ajouté au panier !',
+        html: `<strong>${quantity} x ${productName}</strong><br>Le produit a été ajouté à votre panier.`,
+        timer: 1500,
+        showConfirmButton: false,
+        position: 'top-end',
+        toast: true,
+        background: '#f8f5f0',
+        color: '#8b4513',
+        iconColor: '#28a745',
+        customClass: {
+          popup: 'border border-success'
+        }
+      });
+    }
+
+    // Ajouter au panier avec alerte
+    function addToCartWithAlert(id, qty) {
+      const product = products.find(p => p.id === id);
+      
+      if (cart[id]) {
+        cart[id] += qty;
+        SwalWithHighZIndex.fire({
+          title: 'Quantité mise à jour',
+          text: `La quantité de "${product.name}" a été augmentée de ${qty}. Nouvelle quantité: ${cart[id]}`,
+          icon: 'info',
+          timer: 1200,
+          showConfirmButton: false
+        });
+      } else {
+        cart[id] = qty;
+        showAddToCartAlert(product.name, qty);
+      }
+      
+      updateCartUI();
+      
+      // Si la modale du panier est ouverte, la mettre à jour
+      if (cartModalInstance) {
+        renderCartItems();
+      }
+    }
+
     function renderProducts(filterCategory = 'all'){
       const list = document.getElementById('product-list');
       list.innerHTML='';
@@ -682,40 +711,17 @@
         });
       });
 
+      // Événements pour ajouter au panier
       document.querySelectorAll('.add-to-cart').forEach(btn=>{
         btn.addEventListener('click', ()=>{
           const id = Number(btn.dataset.id);
           const parent = btn.closest('.product-card');
           const qty = Number(parent.querySelector('.qty-input').value) || 1;
-          if(cart[id]){
-            SwalWithHighZIndex.fire({
-              title: 'Produit déjà dans le panier',
-              text: `Le produit \"${products.find(p=>p.id===id).name}\" est déjà dans votre panier. Que voulez-vous faire ?`,
-              icon: 'warning',
-              showDenyButton: true,
-              confirmButtonText: 'Modifier la quantité',
-              denyButtonText: 'Supprimer du panier',
-              showCancelButton: true,
-              customClass: { popup: 'high-z-index-swal-popup' }
-            }).then(res=>{
-              if(res.isConfirmed){
-                renderCartItems(); 
-                new bootstrap.Modal(document.getElementById('cartModal')).show();
-              } else if(res.isDenied){
-                delete cart[id]; updateCartUI(); 
-                SwalWithHighZIndex.fire({icon:'success', text:'Produit retiré du panier', timer: 1500});
-              }
-            });
-          } else {
-            addToCart(id, qty);
-            SwalWithHighZIndex.fire({ 
-              icon:'success', 
-              title:'Ajouté au panier', 
-              text:`${qty} x ${products.find(p=>p.id===id).name}` , 
-              timer:1200, 
-              showConfirmButton:false 
-            });
-          }
+          
+          // Réinitialiser la quantité à 1 après l'ajout
+          parent.querySelector('.qty-input').value = 1;
+          
+          addToCartWithAlert(id, qty);
         });
       });
 
@@ -729,17 +735,9 @@
       });
     }
 
-    function addToCart(id, qty){ 
-      if(cart[id]) {
-        cart[id] += qty; 
-      } else {
-        cart[id] = qty; 
-      }
-      updateCartUI(); 
-    }
-    
     function updateCartUI(){ 
-      document.getElementById('cart-count').innerText = Object.values(cart).reduce((s,v)=>s+v,0); 
+      const cartCount = Object.values(cart).reduce((s,v)=>s+v,0);
+      document.getElementById('cart-count').innerText = cartCount; 
       localStorage.setItem('chezhajar_cart', JSON.stringify(cart)); 
     }
     
@@ -749,9 +747,11 @@
       updateCartUI(); 
     }
 
+    // Ouvrir la modale du panier
     document.getElementById('floatingCart').addEventListener('click', ()=>{ 
       renderCartItems(); 
-      new bootstrap.Modal(document.getElementById('cartModal')).show();
+      cartModalInstance = new bootstrap.Modal(document.getElementById('cartModal'));
+      cartModalInstance.show();
     });
 
     function renderCartItems(){
@@ -801,7 +801,7 @@
         area.appendChild(container);
       });
 
-      // Événements du panier
+      // Événements du panier - images
       document.querySelectorAll('#cart-items-area .cart-thumb').forEach(img=>{ 
         img.addEventListener('click', (event)=>{
           event.stopPropagation();
@@ -810,32 +810,42 @@
         }); 
       });
 
+      // Événements du panier - contrôles de quantité
       document.querySelectorAll('#cart-items-area .qty-control').forEach(ctrl=>{
         const id = Number(ctrl.dataset.id);
         const input = ctrl.querySelector('.qty-input');
+        
         ctrl.querySelector('.btn-decrease').addEventListener('click', ()=>{ 
-          if(Number(input.value)>1) input.value = Number(input.value)-1; 
-          updateQtyFromModal(id, Number(input.value)); 
+          if(Number(input.value)>1) {
+            input.value = Number(input.value)-1; 
+            updateQtyFromModal(id, Number(input.value)); 
+          }
         });
+        
         ctrl.querySelector('.btn-increase').addEventListener('click', ()=>{ 
           input.value = Number(input.value)+1; 
           updateQtyFromModal(id, Number(input.value)); 
         });
+        
         input.addEventListener('change', ()=>{ 
           if(Number(input.value)<1) input.value=1; 
           updateQtyFromModal(id, Number(input.value)); 
         });
       });
 
+      // Événements du panier - suppression
       document.querySelectorAll('#cart-items-area .remove-item').forEach(btn=>{ 
         btn.addEventListener('click', ()=>{ 
           const id = Number(btn.dataset.id); 
+          const product = products.find(p => p.id === id);
+          
           SwalWithHighZIndex.fire({ 
-            title:'Supprimer cet article ?', 
-            icon:'warning', 
-            showCancelButton:true, 
-            confirmButtonText:'Oui, supprimer', 
-            cancelButtonText:'Annuler',
+            title: 'Supprimer cet article ?', 
+            text: `Voulez-vous supprimer "${product.name}" de votre panier ?`, 
+            icon: 'warning', 
+            showCancelButton: true, 
+            confirmButtonText: 'Oui, supprimer', 
+            cancelButtonText: 'Annuler',
             customClass: { popup: 'high-z-index-swal-popup' }
           }).then(res=>{ 
             if(res.isConfirmed){ 
@@ -843,6 +853,15 @@
               updateCartUI(); 
               renderCartItems(); 
               updateTotalDisplay();
+              
+              // Afficher une confirmation
+              SwalWithHighZIndex.fire({
+                icon: 'success',
+                title: 'Produit supprimé',
+                text: `"${product.name}" a été retiré de votre panier`,
+                timer: 1200,
+                showConfirmButton: false
+              });
             } 
           }); 
         }); 
@@ -853,10 +872,25 @@
     }
 
     function updateQtyFromModal(id, qty){ 
+      const oldQty = cart[id];
       cart[id] = qty; 
       updateCartUI(); 
       renderCartItems(); 
       updateTotalDisplay();
+      
+      // Afficher une notification de mise à jour
+      if (oldQty !== qty) {
+        const product = products.find(p => p.id === id);
+        SwalWithHighZIndex.fire({
+          icon: 'info',
+          title: 'Quantité mise à jour',
+          text: `"${product.name}" : ${oldQty} → ${qty}`,
+          timer: 1000,
+          showConfirmButton: false,
+          position: 'top-end',
+          toast: true
+        });
+      }
     }
 
     // Envoyer la commande avec option de livraison
@@ -930,8 +964,11 @@
             document.getElementById('optionSansLivraison').classList.add('active');
             document.getElementById('optionAvecLivraison').classList.remove('active');
             
-            const cartModal = bootstrap.Modal.getInstance(document.getElementById('cartModal'));
-            if(cartModal) cartModal.hide();
+            // Fermer la modale
+            if (cartModalInstance) {
+              cartModalInstance.hide();
+              cartModalInstance = null;
+            }
           }, 2000);
         }
       });
@@ -972,6 +1009,11 @@
     renderProducts(); 
     loadCart();
     setupDeliveryOptions();
+    
+    // Écouter la fermeture de la modale du panier
+    document.getElementById('cartModal').addEventListener('hidden.bs.modal', function () {
+      cartModalInstance = null;
+    });
   </script>
 </body>
 </html>

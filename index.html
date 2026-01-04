@@ -1,434 +1,977 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Boutique Marocain - Amlou & Miel</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chez Hajar — Produits Marocains Authentiques</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- BOOTSTRAP -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root{ --primary:#8b4513; --accent:#daa520; --gold:#daa520; }
+    html,body{ height:100%; }
+    body{ padding-top:100px; padding-bottom:140px; background:#f8f5f0; font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial }
 
-<!-- FONT AWESOME -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    /* Header & Footer fixed */
+    header.fixed-top{ top:0; left:0; right:0; z-index:1080; }
+    header .topbar{ background:linear-gradient(90deg,var(--primary),#a0522d); color:white; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+    footer.fixed-bottom{ background:linear-gradient(90deg,var(--primary),#a0522d); color:white; padding:10px 0; z-index:1070; }
 
-<!-- SWEETALERT2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    .brand-title{ font-weight:700; letter-spacing:0.2px }
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+    /* Filtre catégories */
+    .category-filter { background: white; padding: 8px 0; border-bottom: 1px solid #eee; position: sticky; top: 60px; z-index: 1075; }
+    .category-select { max-width: 300px; margin: 0 auto; }
 
-:root{
---vert:#0f7c4a;
---or:#c9a24d;
---beige:#f6f1e7;
-}
+    /* Layout switcher mobile - AU-DESSUS du filtre */
+    .layout-switcher { text-align: center; margin-bottom: 8px; }
+    .layout-btn { background: transparent; border: 1px solid #ddd; padding: 5px 10px; margin: 0 3px; border-radius: 4px; font-size: 0.8rem; }
+    .layout-btn.active { background: var(--gold); color: white; border-color: var(--gold); }
 
-body{
-font-family:'Cairo',sans-serif;
-background:var(--beige);
-padding-top:80px;
-padding-bottom:100px; /* pour ne pas cacher le footer */
-}
+    /* Produit card */
+    .product-card{ border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.08); background:#fff; border-top:3px solid var(--gold); margin-bottom: 10px; }
+    .product-img{ height:200px; object-fit:cover; width:100%; display:block; cursor:pointer; transition: transform 0.2s; }
+    .product-img:hover{ transform: scale(1.02); }
+    .price{ font-weight:700; font-size:1.05rem; color: var(--primary); }
+    .old-price{ text-decoration:line-through; color:#999; font-size:.9rem }
+    .promo-badge{ position:absolute; right:8px; top:8px; background:var(--gold); color:#fff; padding:4px 6px; border-radius:6px; font-size:.7rem }
 
-header,footer{
-position:fixed;
-width:100%;
-z-index:1000;
-background:
-repeating-linear-gradient(
-45deg,
-var(--vert),
-var(--vert) 10px,
-#0c6b40 10px,
-#0c6b40 20px
-);
-color:#fff;
-}
+    /* Actions container */
+    .product-actions{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top: 8px; }
 
-header{top:0}
-footer{bottom:0; padding:10px 0; text-align:center;}
+    /* Qty control - CENTRÉ dans les cartes produits */
+    .qty-control{ display:inline-flex; align-items:center; gap:6px; border-radius:6px; border:1px solid #e9ecef; padding:4px 6px; justify-content:center; margin:0 auto; }
+    .qty-control button{ border:0; background:transparent; font-size:0.9rem; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; }
+    .qty-control input{ width:35px; text-align:center; border:0; outline:none; font-weight:700; font-size:0.9rem; padding: 0; margin: 0; }
 
-.card{
-border:3px solid var(--or);
-border-radius:20px;
-box-shadow:0 10px 20px rgba(0,0,0,.15);
-}
+    /* Modal product small image */
+    .cart-thumb{ width:50px; height:50px; object-fit:cover; border-radius:6px; cursor:pointer; transition: transform 0.2s; }
+    .cart-thumb:hover{ transform: scale(1.1); }
 
-/* CARTE PRODUIT : image adaptative */
-.card img{
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-bottom:3px solid var(--or);
-    border-radius:10px;
-}
+    /* Cart item card in modal */
+    .cart-item-card{ border:1px solid #f0e6ef; border-radius:8px; padding:8px; background:#fff; border-left:3px solid var(--gold); margin-bottom: 8px; }
 
-.qty{
-width:50px;
-text-align:center;
-border-radius:20px;
-border:2px solid var(--vert);
-margin:0 5px;
-}
+    /* Cart Modal fixes - HIGHER Z-INDEX */
+    #cartModal { z-index: 2000 !important; }
+    #cartModal .modal-dialog { z-index: 2001; }
+    #cartModal .modal-content { max-height: 80vh; display: flex; flex-direction: column; z-index: 2002; }
+    #cartModal .modal-header { position: sticky; top: 0; background: white; z-index: 2003; border-bottom: 2px solid var(--gold); padding: 12px; }
+    #cartModal .modal-body { flex: 1; overflow-y: auto; padding: 12px; }
+    #cartModal .modal-footer { position: sticky; bottom: 0; background: white; z-index: 2003; border-top: 2px solid var(--gold); padding: 12px; }
 
-.qty-container{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:5px;
-}
+    /* Livraison options */
+    .livraison-options { 
+      background: #f9f5f0; 
+      border-radius: 8px; 
+      padding: 12px; 
+      margin: 15px 0; 
+      border: 2px solid var(--gold);
+    }
+    .livraison-options h6 { 
+      color: var(--primary); 
+      font-weight: 700; 
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .livraison-option { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      padding: 8px; 
+      border-radius: 6px; 
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 5px;
+    }
+    .livraison-option:hover { 
+      background: rgba(139, 69, 19, 0.05); 
+    }
+    .livraison-option.active { 
+      background: rgba(139, 69, 19, 0.1); 
+      border-left: 3px solid var(--primary);
+    }
+    .livraison-option input { 
+      margin: 0; 
+      cursor: pointer;
+    }
+    .livraison-option label { 
+      margin: 0; 
+      cursor: pointer; 
+      flex-grow: 1;
+      font-weight: 500;
+    }
+    .livraison-price { 
+      font-weight: 700; 
+      color: var(--primary);
+    }
+    
+    /* Total breakdown */
+    .total-breakdown { 
+      background: #f8f9fa; 
+      border-radius: 6px; 
+      padding: 10px; 
+      margin: 10px 0;
+      border: 1px solid #e9ecef;
+    }
+    .breakdown-row { 
+      display: flex; 
+      justify-content: space-between; 
+      margin-bottom: 5px; 
+      font-size: 0.9rem;
+    }
+    .breakdown-row.final-total { 
+      font-weight: 700; 
+      font-size: 1.1rem; 
+      color: var(--primary);
+      border-top: 1px solid #ddd;
+      padding-top: 8px;
+      margin-top: 8px;
+    }
 
-.badge{
-background:var(--or)!important;
-color:#000;
-}
+    /* Image Zoom Modal */
+    #imageZoomModal { z-index: 2500 !important; }
+    #imageZoomModal .modal-dialog { max-width: 90%; max-height: 90vh; margin: 1rem auto; }
+    #imageZoomModal .modal-content { background: transparent; border: none; }
+    #imageZoomModal .modal-body { padding: 0; display: flex; justify-content: center; align-items: center; }
+    #imageZoomModal .modal-header { position: absolute; top: 0; right: 0; border: none; z-index: 2501; background: transparent; }
+    #imageZoomModal .btn-close { background-color: white; opacity: 0.8; margin: 10px; }
+    #imageZoomModal .btn-close:hover { opacity: 1; }
+    #imageZoomModal .modal-footer { position: absolute; bottom: 0; left: 0; right: 0; border: none; background: transparent; z-index: 2501; padding: 10px; justify-content: center; }
+    
+    .zoomed-image { max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    
+    .zoom-close-btn { background-color: rgba(255,255,255,0.8); color: var(--primary); border: 2px solid var(--primary); padding: 8px 20px; border-radius: 30px; font-weight: 600; transition: all 0.3s; }
+    .zoom-close-btn:hover { background-color: var(--primary); color: white; }
 
-.remove{
-cursor:pointer;
-color:#b02a37;
-font-size:18px;
-}
+    /* SweetAlert2 z-index pour afficher devant la modale */
+    .swal2-container {
+      z-index: 3000 !important;
+    }
 
-.offcanvas a{
-color:var(--vert);
-}
+    /* Order form in cart modal */
+    .order-form-section { background: #f8f9fa; border-radius: 6px; padding: 12px; margin-top: 15px; border: 1px solid #e9ecef; }
+    .form-pink input, .form-pink textarea{ border:1px solid #ddd; border-bottom:2px solid var(--gold); border-radius:4px; padding:8px; background:#fff; width:100%; font-size: 0.9rem; }
+    .form-pink input:focus, .form-pink textarea:focus{ outline:none; border-color:var(--primary); box-shadow:0 0 0 2px rgba(139, 69, 19, 0.2); }
+    .form-pink label{ font-weight:600; display:block; margin-bottom:4px; font-size: 0.9rem; }
 
-.offcanvas a:hover{
-color:var(--or);
-transform:scale(1.2);
-}
+    /* Floating cart in footer */
+    .floating-cart{ background:linear-gradient(180deg,var(--accent),var(--primary)); color:#fff; border-radius:50px; padding:10px 14px; box-shadow:0 6px 18px rgba(0,0,0,.15); cursor:pointer; border:2px solid white; }
+    .floating-cart .badge{ background:#fff; color:var(--primary); font-weight:700; font-size: 0.8rem; }
 
-/* PANIER MODALE : produit sur 2 lignes */
-.swal2-html-container .cart-item {
-    display:flex;
-    flex-direction:column;
-    border-bottom:1px solid #ddd;
-    padding:5px 0;
-}
+    /* Footer cart section */
+    .footer-cart-section { position: absolute; top: -55px; left: 50%; transform: translateX(-50%); width: auto; }
 
-.swal2-html-container .cart-item-top {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:5px;
-}
+    /* Responsive fixes - ESPACEMENT RÉDUIT */
+    @media (max-width:576px){
+      body { padding-top: 90px; padding-bottom: 120px; }
+      .category-filter { top: 50px; padding: 6px 0; }
+      .category-select { max-width: 85%; margin: 0 auto; font-size: 0.9rem; }
+      .layout-switcher { margin-bottom: 6px; }
+      .layout-btn { padding: 4px 8px; font-size: 0.75rem; margin: 0 2px; }
+      
+      /* Layout classes for mobile */
+      .layout-1 .col-6 { width: 100% !important; }
+      .layout-2 .col-6 { width: 50% !important; }
+      
+      .product-img{ height:160px; }
+      .qty-control input{ width:30px; font-size: 0.8rem; }
+      .qty-control button{ width: 22px; height: 22px; }
+      .product-actions{ flex-direction:column; align-items:stretch; gap: 6px; }
+      .add-to-cart{ width:100%; font-size: 0.8rem; padding: 6px; }
+      .product-card .p-2 { padding: 10px; }
+      footer .container { flex-direction: column; gap: 5px; text-align: center; font-size: 0.9rem; }
+      .footer-cart-section { top: -45px; }
+      .floating-cart { padding: 8px 12px; font-size: 0.8rem; }
+      .order-form-section { padding: 8px; }
+      
+      /* Image zoom modal mobile */
+      #imageZoomModal .modal-dialog { max-width: 95%; margin: 0.5rem auto; }
+      .zoomed-image { max-height: 80vh; }
+      .zoom-close-btn { padding: 6px 15px; font-size: 0.9rem; }
+      
+      /* Réduire l'espacement des lignes */
+      main.container { padding-top: 0 !important; }
+      .row.g-3 { --bs-gutter-y: 0.5rem; --bs-gutter-x: 0.5rem; }
+    }
 
-.swal2-html-container .cart-item-top img {
-    width:50px;
-    height:50px;
-    object-fit: cover;
-    border-radius:6px;
-}
+    @media (min-width: 577px) {
+      .layout-switcher { display: none; }
+    }
 
-.swal2-html-container .cart-item-bottom {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.swal2-html-container .cart-item-bottom input[type="number"] {
-    width:50px;
-    text-align:center;
-}
-
-.swal2-html-container .qty-btn{
-    cursor:pointer;
-    padding:2px 6px;
-    border-radius:4px;
-    border:1px solid #0f7c4a;
-    background:#f6f1e7;
-    margin:0 2px;
-}
-
-/* MARQUEE DE BIENVENUE */
-.marquee-container {
-  overflow: hidden;
-  position: relative;
-  background:#fff;
-  border-radius:10px;
-  border:2px solid var(--vert);
-  padding:5px 10px;
-  margin-bottom:15px;
-}
-
-.marquee {
-  display: inline-block;
-  white-space: nowrap;
-  position: relative;
-  animation: marqueeAnim 15s linear infinite;
-  font-weight:bold;
-  color:var(--vert);
-}
-
-@keyframes marqueeAnim {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-/* FOOTER TEXTE FIXE */
-footer .fixed-text {
-  color: var(--or);
-  font-weight: bold;
-  display:block;
-}
-</style>
+    /* Espacement principal réduit */
+    main.container { margin-bottom: 15px; padding-top: 10px !important; }
+    .py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+  </style>
 </head>
-
 <body>
+  <!-- Header -->
+  <header class="fixed-top">
+    <div class="topbar">
+      <div class="container d-flex align-items-center justify-content-between py-1">
+        <div class="d-flex align-items-center gap-2">
+          <img src="images/logo.jpg" alt="logo" style="height:40px;border-radius:6px;object-fit:cover;">
+          <div>
+            <div class="brand-title h6 mb-0">Chez Hajar 🇲🇦</div>
+            <small style="font-size: 0.75rem;">Terroir marocain authentique</small>
+          </div>
+        </div>
+        <nav>
+          <button class="btn btn-sm btn-outline-light" id="btn-contact" style="padding: 4px 8px; font-size: 0.8rem;">
+            <i class="fa fa-phone"></i> Contact
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
 
-<!-- HEADER -->
-<header class="p-3 d-flex justify-content-between align-items-center">
-<button class="btn btn-light" data-bs-toggle="offcanvas" data-bs-target="#menu">
-<i class="fa fa-bars"></i>
-</button>
-
-<h5 class="m-0">Produits Marocains 🇲🇦</h5>
-
-<button class="btn btn-light position-relative" onclick="openCart()">
-<i class="fa fa-shopping-cart"></i>
-<span class="badge position-absolute top-0 start-100 translate-middle" id="cartCount">0</span>
-</button>
-</header>
-
-<!-- OFFCANVAS -->
-<div class="offcanvas offcanvas-start" id="menu">
-<div class="offcanvas-header">
-<h5>Menu</h5>
-<button class="btn-close" data-bs-dismiss="offcanvas"></button>
-</div>
-
-<div class="offcanvas-body d-flex flex-column justify-content-between">
-
-<div>
-<p class="fw-bold">Terroir marocain authentique</p>
-<p>Amlou – Miel – Produits naturels</p>
-</div>
-
-<div class="border-top pt-3 text-center">
-<div class="fw-bold mb-2">Contact direct</div>
-<div class="d-flex justify-content-center gap-4 fs-4">
-<a href="tel:+212661906684"><i class="fa fa-phone"></i></a>
-<a href="https://wa.me/212661906684" target="_blank"><i class="fab fa-whatsapp"></i></a>
-<a href="sms:+212661906684"><i class="fa fa-comment-dots"></i></a>
-</div>
-<div class="small mt-2">
-+212 6 61 90 66 84
-</div>
-</div>
-
-</div>
-</div>
-
-<!-- MARQUEE BIENVENUE -->
-<div class="container mt-4">
-  <div class="marquee-container">
-    <div class="marquee">
-      Bienvenue dans notre boutique marocaine 🇲🇦 - Amlou, Miel et produits du terroir authentiques !
+  <!-- Filtre Catégories -->
+  <div class="category-filter">
+    <div class="container">
+      <!-- Layout switcher pour mobile - AU-DESSUS du filtre -->
+      <div class="layout-switcher d-md-none">
+        <span style="margin-right: 8px; font-size: 0.8rem;">Affichage:</span>
+        <button class="layout-btn" id="layout1" title="1 produit par ligne"><i class="fa fa-th-large"></i> 1</button>
+        <button class="layout-btn active" id="layout2" title="2 produits par ligne"><i class="fa fa-th"></i> 2</button>
+      </div>
+      
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <select class="form-select category-select" id="categoryFilter">
+            <option value="all">Tous les produits</option>
+            <option value="amlou">Amlou</option>
+            <option value="miel">Miel</option>
+            <option value="huile">Huile d'Argan</option>
+            <option value="amandes">Amandes</option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- PRODUITS -->
-<div class="container">
-<div class="row" id="products"></div>
-</div>
+  <!-- Main content - ESPACEMENT RÉDUIT -->
+  <main class="container" style="padding-top: 5px !important;">
+    <div class="row g-2 layout-2" id="product-list"></div>
+    <div style="height:60px"></div>
+  </main>
 
-<!-- FOOTER FIXE -->
-<footer>
-© Boutique Marocaine
-<span class="fixed-text">Created by : M.Seddik Elidrissi</span>
-</footer>
-
-<!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-/* PRODUITS */
-const products = [
-{ id:1, name:"Amlou Amandes", price:50, image:"images/amlou.jpg" },
-{ id:2, name:"Miel Naturel", price:70, image:"https://via.placeholder.com/300?text=Miel" },
-{ id:3, name:"Huile d'Argan", price:90, image:"https://via.placeholder.com/300?text=Argan" }
-];
-
-let cart = [];
-
-/* RENDRE LES PRODUITS */
-function renderProducts(){
-let html='';
-products.forEach(p=>{
-html+=`
-<div class="col-md-4 mb-4">
-<div class="card text-center p-3">
-<img src="${p.image}">
-<h5 class="mt-2">${p.name}</h5>
-<p class="fw-bold">${p.price} DH</p>
-
-<div class="qty-container">
-<button class="btn btn-outline-success btn-sm" onclick="changeCardQty(${p.id},-1)">-</button>
-<input type="number" min="1" value="1" class="qty" id="qty${p.id}">
-<button class="btn btn-outline-success btn-sm" onclick="changeCardQty(${p.id},1)">+</button>
-</div>
-
-<button class="btn btn-success mt-2" onclick="addToCart(${p.id})">
-<i class="fa fa-cart-plus"></i> Ajouter au panier
-</button>
-</div>
-</div>`;
-});
-document.getElementById('products').innerHTML=html;
-}
-
-/* MODIFIER QUANTITÉ DANS CARTE */
-function changeCardQty(id,delta){
-let input=document.getElementById('qty'+id);
-let val=parseInt(input.value)+delta;
-if(val<1) val=1;
-input.value=val;
-}
-
-/* AJOUTER AU PANIER */
-function addToCart(id){
-let qty=parseInt(document.getElementById('qty'+id).value);
-let item=cart.find(i=>i.id===id);
-if(item){
-Swal.fire('Déjà ajouté','Ce produit est déjà dans le panier','info');
-return;
-}
-let p=products.find(p=>p.id===id);
-cart.push({...p,qty});
-updateBadge();
-Swal.fire('Ajouté','Produit ajouté au panier','success');
-}
-
-/* METTRE A JOUR LE BADGE */
-function updateBadge(){
-document.getElementById('cartCount').innerText=
-cart.reduce((a,b)=>a+b.qty,0);
-}
-
-/* OUVRIR PANIER */
-function openCart(){
-if(cart.length===0){
-Swal.fire('Panier vide','','info');
-return;
-}
-
-let total=cart.reduce((a,b)=>a+b.price*b.qty,0);
-let itemsHtml='';
-cart.forEach((i,idx)=>{
-itemsHtml+=`
-<div class="cart-item">
-  <div class="cart-item-top">
-    <img src="${i.image}" alt="${i.name}">
-    <span>${i.name}</span>
-  </div>
-  <div class="cart-item-bottom">
-    <div>
-      <button class="qty-btn" onclick="changeQty(${idx},-1)">-</button>
-      <input type="number" min="1" value="${i.qty}" onchange="changeQtyInput(${idx},this.value)">
-      <button class="qty-btn" onclick="changeQty(${idx},1)">+</button>
+  <!-- Footer with cart -->
+  <footer class="fixed-bottom text-center">
+    <div class="footer-cart-section">
+      <div class="floating-cart d-flex align-items-center gap-2" id="floatingCart" title="Voir le panier">
+        <i class="fa fa-shopping-basket"></i>
+        <div>
+          <div style="font-size:.8rem">Panier</div>
+          <span class="badge rounded-pill" id="cart-count">0</span>
+        </div>
+      </div>
     </div>
-    <div>${i.price*i.qty} DH</div>
-    <div><i class="fa fa-trash remove" onclick="confirmRemove(${idx})"></i></div>
+    <div class="container d-flex justify-content-between align-items-center">
+      <div style="font-size: 0.8rem;">© <strong>Chez Hajar</strong> — Terroir Marocain 🇲🇦</div>
+      <div style="font-size: 0.8rem;">Livraison disponible &nbsp; <i class="fa fa-truck"></i></div>
+    </div>
+  </footer>
+
+  <!-- Cart Modal avec formulaire intégré -->
+  <div class="modal fade" id="cartModal" tabindex="-1" aria-modal="true" aria-labelledby="cartModalLabel">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" style="font-size: 1.1rem;">Votre panier</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div id="cart-items-area" class="d-flex flex-column gap-2"></div>
+          
+          <!-- Section Options de livraison -->
+          <div class="livraison-options" id="livraisonOptions">
+            <h6><i class="fa fa-truck"></i> Options de livraison</h6>
+            <div class="livraison-option active" id="optionSansLivraison">
+              <input type="radio" id="sansLivraison" name="livraison" value="sans" checked>
+              <label for="sansLivraison">Sans livraison (Retrait sur place)</label>
+              <span class="livraison-price">+0 DH</span>
+            </div>
+            <div class="livraison-option" id="optionAvecLivraison">
+              <input type="radio" id="avecLivraison" name="livraison" value="avec">
+              <label for="avecLivraison">Avec livraison à domicile</label>
+              <span class="livraison-price">+10 DH</span>
+            </div>
+          </div>
+
+          <!-- Détail du total -->
+          <div class="total-breakdown">
+            <div class="breakdown-row">
+              <span>Sous-total produits:</span>
+              <span id="subtotal-products">0.00 DH</span>
+            </div>
+            <div class="breakdown-row">
+              <span>Frais de livraison:</span>
+              <span id="delivery-fee">0.00 DH</span>
+            </div>
+            <div class="breakdown-row final-total">
+              <span>Total à payer:</span>
+              <span id="cart-total">0.00 DH</span>
+            </div>
+          </div>
+
+          <!-- Section Informations de la commande intégrée -->
+          <div class="order-form-section">
+            <h6 class="mb-2" style="font-size: 0.9rem;"><i class="fa fa-info-circle"></i> Informations de la commande</h6>
+            <form id="orderForm" class="form-pink">
+              <div class="row">
+                <div class="col-md-6 mb-2">
+                  <label for="clientName">Nom du client *</label>
+                  <input class="form-control" id="clientName" required type="text" placeholder="Votre nom complet">
+                </div>
+                <div class="col-md-6 mb-2">
+                  <label for="clientPhone">Téléphone *</label>
+                  <input class="form-control" id="clientPhone" value="+212" required type="tel" placeholder="Votre numéro">
+                </div>
+              </div>
+              <div class="mb-2">
+                <label for="clientAddress">Adresse de livraison *</label>
+                <input class="form-control" id="clientAddress" required type="text" placeholder="Votre adresse complète">
+              </div>
+              <div class="mb-2">
+                <label for="clientComment">Commentaire (facultatif)</label>
+                <textarea class="form-control" id="clientComment" rows="2" placeholder="Notes supplémentaires..."></textarea>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal" style="font-size: 0.9rem; padding: 6px 12px;">Continuer vos achats</button>
+          <button class="btn btn-success" id="btn-send-order" style="font-size: 0.9rem; padding: 6px 12px;">
+            <i class="fa fa-paper-plane"></i> Envoyer la commande
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-</div>`;
-});
 
-Swal.fire({
-title:'Votre panier',
-html:`
-${itemsHtml}
-<select id="livraison" class="form-select mb-2" onchange="updateTotal()">
-<option value="0">Sans livraison</option>
-<option value="10">Avec livraison (+10 DH)</option>
-</select>
+  <!-- Image Zoom Modal (simplifié) -->
+  <div class="modal fade" id="imageZoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="zoomedImage" src="" alt="Image agrandie" class="zoomed-image">
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn zoom-close-btn" data-bs-dismiss="modal">
+            <i class="fa fa-times"></i> Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<p>Total: <b><span id="total">${total}</span> DH</b></p>
+  <!-- Contact modal -->
+  <div class="modal fade" id="contactModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title" style="font-size: 1.1rem;">Contactez-nous</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body text-center">
+          <p style="font-size: 0.9rem;">Contact rapide</p>
+          <div class="d-flex justify-content-around py-2">
+            <a id="contactWhatsapp" class="btn btn-light rounded-circle" title="WhatsApp" style="width:45px;height:45px;display:flex;align-items:center;justify-content:center;">
+              <i class="fa-brands fa-whatsapp" style="color:#25d366"></i>
+            </a>
+            <a id="contactSms" class="btn btn-light rounded-circle" title="SMS" style="width:45px;height:45px;display:flex;align-items:center;justify-content:center;">
+              <i class="fa fa-sms" style="color:#0d6efd"></i>
+            </a>
+            <a id="contactCall" class="btn btn-light rounded-circle" title="Appel" style="width:45px;height:45px;display:flex;align-items:center;justify-content:center;">
+              <i class="fa fa-phone" style="color:#198754"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<input id="nom" class="form-control mb-2" placeholder="Nom *">
-<input id="adresse" class="form-control mb-2" placeholder="Adresse *">
-<input id="tel" class="form-control mb-2" placeholder="Téléphone *">
-<textarea id="comment" class="form-control" placeholder="Commentaire (optionnel)"></textarea>
-`,
-showCancelButton:true,
-confirmButtonText:'Commander via WhatsApp',
-cancelButtonText:'Continuer mes achats',
-preConfirm:sendOrder
-}).then((result)=>{
-if(result.isDismissed){ renderProducts(); }
-});
-}
+  <!-- Bootstrap & Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-/* CHANGER QUANTITÉ DANS PANIER */
-function changeQty(idx,delta){
-cart[idx].qty+=delta;
-if(cart[idx].qty<1) cart[idx].qty=1;
-openCart();
-}
+  <script>
+    // ======= PRODUITS MAROCAINS 🇲🇦 =========
+    // Toutes les images sont maintenant dans le dossier "images/"
+    const products = [
+      { 
+        id:1, 
+        name:'Amlou Premium - 250g', 
+        price:89, 
+        category: 'amlou',
+        images:[
+          'images/amlou1.jpg',
+          'images/amlou2.jpg'
+        ], 
+        promo:79 
+      },
+      { 
+        id:2, 
+        name:'Miel d\'Eucalyptus - 500g', 
+        price:149, 
+        category: 'miel',
+        images:[
+          'images/miel-eucalyptus-1.jpg',
+          'images/miel-eucalyptus-2.jpg'
+        ], 
+        promo:129 
+      },
+      { 
+        id:3, 
+        name:'Huile d\'Argan Vierge - 100ml', 
+        price:199, 
+        category: 'huile',
+        images:[
+          'images/huile-argan-1.jpg'
+        ], 
+        promo:179 
+      },
+      { 
+        id:4, 
+        name:'Amandes Grillées - 500g', 
+        price:129, 
+        category: 'amandes',
+        images:[
+          'images/amandes-grillees-1.jpg'
+        ], 
+        promo:109 
+      },
+      { 
+        id:5, 
+        name:'Amlou Traditionnel - 500g', 
+        price:169, 
+        category: 'amlou',
+        images:[
+          'images/amlou-traditionnel-1.jpg'
+        ], 
+        promo:149 
+      },
+      { 
+        id:6, 
+        name:'Miel de Thym - 250g', 
+        price:99, 
+        category: 'miel',
+        images:[
+          'images/miel-thym-1.jpg'
+        ], 
+        promo:85 
+      },
+      { 
+        id:7, 
+        name:'Huile d\'Argan Cosmétique - 50ml', 
+        price:159, 
+        category: 'huile',
+        images:[
+          'images/huile-argan-cosmetique-1.jpg'
+        ], 
+        promo:139 
+      },
+      { 
+        id:8, 
+        name:'Miel de Fleurs - 1kg', 
+        price:189, 
+        category: 'miel',
+        images:[
+          'images/miel-fleurs-1.jpg'
+        ], 
+        promo:169 
+      },
+    ];
 
-function changeQtyInput(idx,val){
-cart[idx].qty=parseInt(val);
-if(cart[idx].qty<1) cart[idx].qty=1;
-openCart();
-}
+    // Fonction pour mélanger aléatoirement un tableau (algorithme de Fisher-Yates)
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
 
-/* SUPPRIMER AVEC CONFIRMATION */
-function confirmRemove(i){
-Swal.fire({
-title:'Supprimer ce produit ?',
-icon:'warning',
-showCancelButton:true,
-confirmButtonText:'Oui',
-cancelButtonText:'Non'
-}).then((result)=>{
-if(result.isConfirmed){
-cart.splice(i,1);
-updateBadge();
-openCart();
-}
-});
-}
+    // Cart state
+    let cart = {};
+    let currentCategory = 'all';
+    let currentLayout = '2';
+    let deliveryOption = 'sans'; // 'sans' ou 'avec'
+    const DELIVERY_FEE = 10; // 10 DH de frais de livraison
 
-/* METTRE A JOUR TOTAL */
-function updateTotal(){
-let l=parseInt(document.getElementById('livraison').value);
-let t=cart.reduce((a,b)=>a+b.price*b.qty,0)+l;
-document.getElementById('total').innerText=t;
-}
+    const PHONE = '212661906684'; // Numéro mis à jour
+    const formatMAD = v => Number(v).toFixed(2) + ' DH';
 
-/* ENVOYER COMMANDE WHATSAPP */
-function sendOrder(){
-let nom=document.getElementById('nom').value.trim();
-let adr=document.getElementById('adresse').value.trim();
-let tel=document.getElementById('tel').value.trim();
-let comment=document.getElementById('comment').value.trim();
-if(!nom||!adr||!tel){
-Swal.showValidationMessage('Champs obligatoires');
-return false;
-}
+    const SwalWithHighZIndex = Swal.mixin({
+      customClass: { container: 'high-z-index-swal' },
+      didOpen: () => {
+        const swalContainer = document.querySelector('.swal2-container');
+        if (swalContainer) swalContainer.style.zIndex = '3000';
+      }
+    });
 
-let total=parseInt(document.getElementById('total').innerText);
-let livraison=parseInt(document.getElementById('livraison').value);
+    // Fonction pour agrandir une image
+    function zoomImage(imageUrl) {
+      const zoomedImage = document.getElementById('zoomedImage');
+      zoomedImage.src = imageUrl;
+      const zoomModal = new bootstrap.Modal(document.getElementById('imageZoomModal'));
+      zoomModal.show();
+    }
 
-let msg="Commande:%0A";
-cart.forEach(i=>{
-msg+=`${i.name} x${i.qty} = ${i.price*i.qty} DH%0A`;
-});
-msg+=`Livraison: ${livraison==0?'Sans':'Avec'}%0A`;
-msg+=`Total: ${total} DH%0A`;
-msg+=`Nom: ${nom}%0AAdresse: ${adr}%0ATel: ${tel}%0A`;
-if(comment) msg+=`Commentaire: ${comment}%0A`;
+    // Gestion des images manquantes - image de remplacement
+    function handleImageError(imgElement) {
+      // Image par défaut si l'image du produit est manquante
+      imgElement.src = 'images/default-product.jpg';
+      imgElement.onerror = null; // Éviter les boucles infinies
+      imgElement.alt = 'Image non disponible';
+    }
 
-window.open(`https://wa.me/212661906684?text=${msg}`,"_blank");
+    // Fermer la modale d'image avec la touche Échap
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        const imageModal = bootstrap.Modal.getInstance(document.getElementById('imageZoomModal'));
+        if (imageModal) {
+          imageModal.hide();
+        }
+      }
+    });
 
-cart=[];
-updateBadge();
-Swal.fire('Merci 🙏','Commande envoyée','success');
-renderProducts();
-}
+    // Fermer la modale en cliquant en dehors de l'image
+    document.getElementById('imageZoomModal').addEventListener('click', function(event) {
+      if (event.target === this || event.target.classList.contains('modal-body') || event.target.classList.contains('modal-content')) {
+        const imageModal = bootstrap.Modal.getInstance(this);
+        if (imageModal) {
+          imageModal.hide();
+        }
+      }
+    });
 
-renderProducts();
-</script>
+    // Calculer le total des produits
+    function calculateProductsTotal() {
+      return Object.entries(cart).reduce((total, [id, qty]) => {
+        const p = products.find(x => x.id == id);
+        const unitPrice = p.promo || p.price;
+        return total + (unitPrice * qty);
+      }, 0);
+    }
 
+    // Calculer le total avec livraison
+    function calculateTotalWithDelivery() {
+      const productsTotal = calculateProductsTotal();
+      const deliveryFee = deliveryOption === 'avec' ? DELIVERY_FEE : 0;
+      return productsTotal + deliveryFee;
+    }
+
+    // Mettre à jour l'affichage des totaux
+    function updateTotalDisplay() {
+      const productsTotal = calculateProductsTotal();
+      const deliveryFee = deliveryOption === 'avec' ? DELIVERY_FEE : 0;
+      const total = productsTotal + deliveryFee;
+      
+      document.getElementById('subtotal-products').textContent = formatMAD(productsTotal);
+      document.getElementById('delivery-fee').textContent = formatMAD(deliveryFee);
+      document.getElementById('cart-total').textContent = formatMAD(total);
+    }
+
+    // Gestion des options de livraison
+    function setupDeliveryOptions() {
+      const sansLivraisonOption = document.getElementById('optionSansLivraison');
+      const avecLivraisonOption = document.getElementById('optionAvecLivraison');
+      const radioSans = document.getElementById('sansLivraison');
+      const radioAvec = document.getElementById('avecLivraison');
+      
+      // Cliquer sur l'option "Sans livraison"
+      sansLivraisonOption.addEventListener('click', function() {
+        deliveryOption = 'sans';
+        radioSans.checked = true;
+        sansLivraisonOption.classList.add('active');
+        avecLivraisonOption.classList.remove('active');
+        updateTotalDisplay();
+      });
+      
+      // Cliquer sur l'option "Avec livraison"
+      avecLivraisonOption.addEventListener('click', function() {
+        deliveryOption = 'avec';
+        radioAvec.checked = true;
+        avecLivraisonOption.classList.add('active');
+        sansLivraisonOption.classList.remove('active');
+        updateTotalDisplay();
+      });
+      
+      // Gérer les boutons radio directement
+      radioSans.addEventListener('change', function() {
+        if (this.checked) {
+          deliveryOption = 'sans';
+          sansLivraisonOption.classList.add('active');
+          avecLivraisonOption.classList.remove('active');
+          updateTotalDisplay();
+        }
+      });
+      
+      radioAvec.addEventListener('change', function() {
+        if (this.checked) {
+          deliveryOption = 'avec';
+          avecLivraisonOption.classList.add('active');
+          sansLivraisonOption.classList.remove('active');
+          updateTotalDisplay();
+        }
+      });
+    }
+
+    function renderProducts(filterCategory = 'all'){
+      const list = document.getElementById('product-list');
+      list.innerHTML='';
+      
+      // Filtrer les produits par catégorie
+      let filteredProducts = filterCategory === 'all' 
+        ? products 
+        : products.filter(p => p.category === filterCategory);
+      
+      // MÉLANGE ALÉATOIRE des produits
+      filteredProducts = shuffleArray(filteredProducts);
+      
+      if(filteredProducts.length === 0) {
+        list.innerHTML = '<div class="col-12 text-center text-muted"><p>Aucun produit dans cette catégorie.</p></div>';
+        return;
+      }
+
+      const colClass = currentLayout === '1' ? 'col-12' : 'col-6 col-md-4 col-lg-3';
+
+      filteredProducts.forEach(p=>{
+        const col = document.createElement('div');
+        col.className = colClass;
+        col.innerHTML = `
+          <div class="product-card">
+            ${p.promo?'<div class="promo-badge">PROMO</div>':''}
+            <img src="${p.images[0]}" alt="${p.name}" class="product-img product-click" data-id="${p.id}" data-image="${p.images[0]}" onerror="handleImageError(this)"/>
+            <div class="p-2">
+              <h6 class="mb-1" style="font-size: 0.9rem;">${p.name}</h6>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="price" style="font-size: 0.9rem;">${p.promo?formatMAD(p.promo):formatMAD(p.price)}</div>
+                ${p.promo?`<div class="old-price" style="font-size: 0.8rem;">${formatMAD(p.price)}</div>`:''}
+              </div>
+              <div class="product-actions">
+                <div class="qty-control" data-id="${p.id}">
+                  <button class="btn-decrease" title="Réduire"><i class="fa fa-minus"></i></button>
+                  <input type="number" min="1" value="1" class="qty-input" />
+                  <button class="btn-increase" title="Augmenter"><i class="fa fa-plus"></i></button>
+                </div>
+                <button class="btn btn-sm btn-outline-primary add-to-cart" data-id="${p.id}" style="font-size: 0.8rem; background-color: #8b4513; color: white; border-color: #8b4513;">
+                  <i class="fa fa-cart-plus"></i> Ajouter
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        list.appendChild(col);
+      });
+
+      // Événements
+      document.querySelectorAll('.qty-control').forEach(ctrl=>{
+        const input = ctrl.querySelector('.qty-input');
+        ctrl.querySelector('.btn-decrease').addEventListener('click', ()=>{ 
+          if(Number(input.value)>1) input.value = Number(input.value)-1; 
+        });
+        ctrl.querySelector('.btn-increase').addEventListener('click', ()=>{ 
+          input.value = Number(input.value)+1; 
+        });
+      });
+
+      document.querySelectorAll('.add-to-cart').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = Number(btn.dataset.id);
+          const parent = btn.closest('.product-card');
+          const qty = Number(parent.querySelector('.qty-input').value) || 1;
+          if(cart[id]){
+            SwalWithHighZIndex.fire({
+              title: 'Produit déjà dans le panier',
+              text: `Le produit \"${products.find(p=>p.id===id).name}\" est déjà dans votre panier. Que voulez-vous faire ?`,
+              icon: 'warning',
+              showDenyButton: true,
+              confirmButtonText: 'Modifier la quantité',
+              denyButtonText: 'Supprimer du panier',
+              showCancelButton: true,
+              customClass: { popup: 'high-z-index-swal-popup' }
+            }).then(res=>{
+              if(res.isConfirmed){
+                renderCartItems(); 
+                new bootstrap.Modal(document.getElementById('cartModal')).show();
+              } else if(res.isDenied){
+                delete cart[id]; updateCartUI(); 
+                SwalWithHighZIndex.fire({icon:'success', text:'Produit retiré du panier', timer: 1500});
+              }
+            });
+          } else {
+            addToCart(id, qty);
+            SwalWithHighZIndex.fire({ 
+              icon:'success', 
+              title:'Ajouté au panier', 
+              text:`${qty} x ${products.find(p=>p.id===id).name}` , 
+              timer:1200, 
+              showConfirmButton:false 
+            });
+          }
+        });
+      });
+
+      // Événement pour agrandir l'image au clic
+      document.querySelectorAll('.product-click').forEach(img=>{
+        img.addEventListener('click', (event)=>{
+          event.stopPropagation();
+          const imageUrl = img.dataset.image || img.src;
+          zoomImage(imageUrl);
+        });
+      });
+    }
+
+    function addToCart(id, qty){ 
+      if(cart[id]) {
+        cart[id] += qty; 
+      } else {
+        cart[id] = qty; 
+      }
+      updateCartUI(); 
+    }
+    
+    function updateCartUI(){ 
+      document.getElementById('cart-count').innerText = Object.values(cart).reduce((s,v)=>s+v,0); 
+      localStorage.setItem('chezhajar_cart', JSON.stringify(cart)); 
+    }
+    
+    function loadCart(){ 
+      const raw = localStorage.getItem('chezhajar_cart'); 
+      if(raw) cart = JSON.parse(raw); 
+      updateCartUI(); 
+    }
+
+    document.getElementById('floatingCart').addEventListener('click', ()=>{ 
+      renderCartItems(); 
+      new bootstrap.Modal(document.getElementById('cartModal')).show();
+    });
+
+    function renderCartItems(){
+      const area = document.getElementById('cart-items-area');
+      area.innerHTML='';
+      const ids = Object.keys(cart).map(Number);
+      if(ids.length===0){ 
+        area.innerHTML = '<p class="text-center text-muted" style="font-size: 0.9rem;">Votre panier est vide.</p>'; 
+        document.getElementById('livraisonOptions').style.display = 'none';
+        document.querySelector('.total-breakdown').style.display = 'none';
+        document.querySelector('.order-form-section').style.display = 'none';
+        document.getElementById('btn-send-order').style.display = 'none';
+        return; 
+      } else {
+        document.getElementById('livraisonOptions').style.display = 'block';
+        document.querySelector('.total-breakdown').style.display = 'block';
+        document.querySelector('.order-form-section').style.display = 'block';
+        document.getElementById('btn-send-order').style.display = 'block';
+      }
+      
+      ids.forEach(id=>{
+        const p = products.find(x=>x.id===id);
+        const qty = cart[id];
+        const unitPrice = p.promo || p.price;
+        const total = unitPrice * qty;
+        const container = document.createElement('div');
+        container.className = 'cart-item-card';
+        container.innerHTML = `
+          <div class="d-flex gap-2 align-items-center">
+            <img src="${p.images[0]}" class="cart-thumb" data-id="${id}" alt="thumb" data-image="${p.images[0]}" onerror="handleImageError(this)">
+            <div class="flex-grow-1">
+              <div><strong style="font-size: 0.9rem;">${p.name}</strong></div>
+              <div class="text-muted small" style="font-size: 0.8rem;">${formatMAD(unitPrice)} x ${qty} = <strong>${formatMAD(total)}</strong></div>
+              <div class="mt-1 d-flex align-items-center gap-2 flex-wrap">
+                <div class="qty-control small" style="padding:3px 6px;" data-id="${id}">
+                  <button class="btn-decrease"><i class="fa fa-minus"></i></button>
+                  <input class="qty-input" type="number" value="${qty}" min="1">
+                  <button class="btn-increase"><i class="fa fa-plus"></i></button>
+                </div>
+                <button class="btn btn-sm btn-outline-danger remove-item" data-id="${id}" style="font-size: 0.8rem; padding: 3px 6px;">
+                  <i class="fa fa-trash"></i> Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        area.appendChild(container);
+      });
+
+      // Événements du panier
+      document.querySelectorAll('#cart-items-area .cart-thumb').forEach(img=>{ 
+        img.addEventListener('click', (event)=>{
+          event.stopPropagation();
+          const imageUrl = img.dataset.image || img.src;
+          zoomImage(imageUrl);
+        }); 
+      });
+
+      document.querySelectorAll('#cart-items-area .qty-control').forEach(ctrl=>{
+        const id = Number(ctrl.dataset.id);
+        const input = ctrl.querySelector('.qty-input');
+        ctrl.querySelector('.btn-decrease').addEventListener('click', ()=>{ 
+          if(Number(input.value)>1) input.value = Number(input.value)-1; 
+          updateQtyFromModal(id, Number(input.value)); 
+        });
+        ctrl.querySelector('.btn-increase').addEventListener('click', ()=>{ 
+          input.value = Number(input.value)+1; 
+          updateQtyFromModal(id, Number(input.value)); 
+        });
+        input.addEventListener('change', ()=>{ 
+          if(Number(input.value)<1) input.value=1; 
+          updateQtyFromModal(id, Number(input.value)); 
+        });
+      });
+
+      document.querySelectorAll('#cart-items-area .remove-item').forEach(btn=>{ 
+        btn.addEventListener('click', ()=>{ 
+          const id = Number(btn.dataset.id); 
+          SwalWithHighZIndex.fire({ 
+            title:'Supprimer cet article ?', 
+            icon:'warning', 
+            showCancelButton:true, 
+            confirmButtonText:'Oui, supprimer', 
+            cancelButtonText:'Annuler',
+            customClass: { popup: 'high-z-index-swal-popup' }
+          }).then(res=>{ 
+            if(res.isConfirmed){ 
+              delete cart[id]; 
+              updateCartUI(); 
+              renderCartItems(); 
+              updateTotalDisplay();
+            } 
+          }); 
+        }); 
+      });
+
+      // Mettre à jour l'affichage des totaux
+      updateTotalDisplay();
+    }
+
+    function updateQtyFromModal(id, qty){ 
+      cart[id] = qty; 
+      updateCartUI(); 
+      renderCartItems(); 
+      updateTotalDisplay();
+    }
+
+    // Envoyer la commande avec option de livraison
+    document.getElementById('btn-send-order').addEventListener('click', ()=>{
+      if(Object.keys(cart).length===0){ 
+        SwalWithHighZIndex.fire({icon:'info', text:'Votre panier est vide.'}); return; 
+      }
+      const name = document.getElementById('clientName').value.trim();
+      const phone = document.getElementById('clientPhone').value.trim();
+      const address = document.getElementById('clientAddress').value.trim();
+      const comment = document.getElementById('clientComment').value.trim();
+      
+      if(!name || !phone || !address){ 
+        SwalWithHighZIndex.fire({icon:'error', text:'Veuillez remplir le nom, téléphone et adresse.'}); return; 
+      }
+
+      const productsTotal = calculateProductsTotal();
+      const deliveryFee = deliveryOption === 'avec' ? DELIVERY_FEE : 0;
+      const total = productsTotal + deliveryFee;
+
+      let message = `Commande - Chez Hajar 🇲🇦\nTerroir marocain authentique\n\n`;
+      message += `Client: ${name}\nTéléphone: ${phone}\nAdresse: ${address}\n`;
+      message += `Livraison: ${deliveryOption === 'avec' ? 'À domicile (+10 DH)' : 'Retrait sur place'}\n\n`;
+      message += `--- PRODUITS MAROCAINS ---\n`;
+      
+      Object.entries(cart).forEach(([id,qty])=>{
+        const p = products.find(x=>x.id==id);
+        const unit = p.promo || p.price;
+        message += `• ${p.name}\n  Quantité: ${qty} | Prix: ${Number(unit).toFixed(2)} DH | Sous-total: ${Number(unit*qty).toFixed(2)} DH\n`;
+      });
+      
+      message += `\n--- TOTAL ---\n`;
+      message += `Sous-total produits: ${formatMAD(productsTotal)}\n`;
+      if(deliveryOption === 'avec') {
+        message += `Frais de livraison: +${formatMAD(DELIVERY_FEE)}\n`;
+      }
+      message += `💰 TOTAL À PAYER: ${formatMAD(total)} DH\n`;
+      
+      if(comment) message += `\n📝 Notes: ${comment}\n`;
+      message += `\n🇲🇦 Merci pour votre confiance !`;
+
+      const url = `https://wa.me/${PHONE}?text=` + encodeURIComponent(message);
+      
+      SwalWithHighZIndex.fire({
+        title: 'Confirmer l\'envoi', 
+        text: `Votre commande sera envoyée sur WhatsApp\nTotal: ${formatMAD(total)}`, 
+        icon: 'question',
+        showCancelButton: true, 
+        confirmButtonText: 'Oui, envoyer', 
+        cancelButtonText: 'Annuler',
+        customClass: { popup: 'high-z-index-swal-popup' }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.open(url, '_blank');
+          SwalWithHighZIndex.fire({
+            icon: 'success', 
+            title: 'Commande envoyée !', 
+            text: 'Merci pour votre confiance !',
+            timer: 3000, 
+            showConfirmButton: false, 
+            customClass: { popup: 'high-z-index-swal-popup' }
+          });
+          setTimeout(() => {
+            cart = {}; 
+            updateCartUI(); 
+            document.getElementById('orderForm').reset();
+            document.getElementById('clientPhone').value = '+212';
+            // Réinitialiser l'option de livraison
+            deliveryOption = 'sans';
+            document.getElementById('sansLivraison').checked = true;
+            document.getElementById('optionSansLivraison').classList.add('active');
+            document.getElementById('optionAvecLivraison').classList.remove('active');
+            
+            const cartModal = bootstrap.Modal.getInstance(document.getElementById('cartModal'));
+            if(cartModal) cartModal.hide();
+          }, 2000);
+        }
+      });
+    });
+
+    // Événements de contact
+    document.getElementById('btn-contact').addEventListener('click', ()=>{ 
+      new bootstrap.Modal(document.getElementById('contactModal')).show(); 
+    });
+    document.getElementById('contactWhatsapp').addEventListener('click', ()=>{ window.open(`https://wa.me/${PHONE}`, '_blank'); });
+    document.getElementById('contactSms').addEventListener('click', ()=>{ window.location.href = `sms:+${PHONE}`; });
+    document.getElementById('contactCall').addEventListener('click', ()=>{ window.location.href = `tel:+${PHONE}`; });
+
+    // Filtre catégories
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+      currentCategory = this.value;
+      renderProducts(currentCategory);
+    });
+
+    // Layout switcher
+    document.getElementById('layout1').addEventListener('click', function() {
+      currentLayout = '1';
+      document.getElementById('layout1').classList.add('active');
+      document.getElementById('layout2').classList.remove('active');
+      document.getElementById('product-list').className = 'row g-2 layout-1';
+      renderProducts(currentCategory);
+    });
+
+    document.getElementById('layout2').addEventListener('click', function() {
+      currentLayout = '2';
+      document.getElementById('layout2').classList.add('active');
+      document.getElementById('layout1').classList.remove('active');
+      document.getElementById('product-list').className = 'row g-2 layout-2';
+      renderProducts(currentCategory);
+    });
+
+    // Initialisation
+    renderProducts(); 
+    loadCart();
+    setupDeliveryOptions();
+  </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Boutique Marocain - Amlou & Miel</title>
+<title>Boutique Marocaine - Amlou, Miel & Huiles</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- BOOTSTRAP -->
@@ -412,7 +412,7 @@ footer .fixed-text {
 
 <div>
 <p class="fw-bold">Terroir marocain authentique</p>
-<p>Amlou – Miel – Huile d'Argan</p>
+<p>Amlou – Miel – Huiles</p>
 
 <!-- FILTRES PAR CATÉGORIE -->
 <div class="mt-4">
@@ -428,7 +428,7 @@ footer .fixed-text {
             <i class="fas fa-honey-pot"></i> Miel
         </button>
         <button class="btn btn-outline-success btn-sm" onclick="filterProducts('huile')">
-            <i class="fas fa-oil-can"></i> Huile d'Argan
+            <i class="fas fa-oil-can"></i> Huiles
         </button>
     </div>
 </div>
@@ -461,7 +461,7 @@ footer .fixed-text {
 <div class="container mt-4">
   <div class="marquee-container">
     <div class="marquee">
-      Bienvenue dans notre boutique marocaine 🇲🇦 - Amlou, Miel et Huile d'Argan authentiques !
+      Bienvenue dans notre boutique marocaine 🇲🇦 - Amlou, Miel et Huiles authentiques !
     </div>
   </div>
 </div>
@@ -511,6 +511,18 @@ const products = [
     id: 3,
     name: "Huile d'Olive",
     price: 60,
+    weight: "1L",
+    category: "huile",
+    images: [
+        "images/huile1.jpg",
+        "images/huile2.jpg",
+        "images/huile3.jpg"
+    ]
+},
+{
+    id: 4,
+    name: "Huile d'Argan Bio",
+    price: 120,
     weight: "1L",
     category: "huile",
     images: [
@@ -696,7 +708,7 @@ function filterProducts(category) {
     // Afficher un message de filtre actif
     const filterText = category === 'all' ? 'Tous les produits' : 
                       category === 'amlou' ? 'Amlou' : 
-                      category === 'miel' ? 'Miel' : 'Huile d\'Argan';
+                      category === 'miel' ? 'Miel' : 'Huiles';
     
     // Afficher un petit badge temporaire
     const marquee = document.querySelector('.marquee');
@@ -727,7 +739,7 @@ function updateFilterBadge() {
     
     if (filterElement) {
         const filterText = currentFilter === 'amlou' ? 'Amlou' : 
-                          currentFilter === 'miel' ? 'Miel' : 'Huile d\'Argan';
+                          currentFilter === 'miel' ? 'Miel' : 'Huiles';
         filterElement.textContent = filterText;
     }
 }

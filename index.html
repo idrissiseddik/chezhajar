@@ -347,145 +347,76 @@ transform:scale(1.2);
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* MODALE PANIER PERSONNALISÉE */
-.cart-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    z-index: 2500;
-    overflow: hidden;
+/* OFFCOFFVAS DU PANIER (PANIER SUR LE CÔTÉ DROIT) */
+.offcanvas-cart {
+    z-index: 1050 !important;
 }
 
-.cart-modal.active {
-    display: block;
+.offcanvas-cart .offcanvas-header {
+    background: var(--vert);
+    color: white;
+    border-bottom: 3px solid var(--or);
 }
 
-.cart-modal-content {
-    position: relative;
-    background: white;
-    width: 100%;
-    height: 100%;
+.offcanvas-cart .offcanvas-body {
+    padding: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
-.cart-modal-header {
-    background: var(--vert);
-    color: white;
-    padding: 1.2rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 3px solid var(--or);
-    flex-shrink: 0;
-}
-
-.cart-modal-header h3 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.close-cart-modal {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2rem;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.3s;
-}
-
-.close-cart-modal:hover {
-    background: rgba(255,255,255,0.2);
-}
-
-.cart-modal-body {
+.offcanvas-cart .offcanvas-body .cart-content {
     flex: 1;
     overflow-y: auto;
-    padding: 1.5rem;
-    padding-bottom: 160px;
+    padding: 1rem;
+    padding-bottom: 200px;
 }
 
-.cart-modal-footer {
+.offcanvas-cart .offcanvas-body .cart-footer {
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%;
+    right: 0;
     background: white;
-    padding: 1rem 1.5rem;
+    padding: 1rem;
     border-top: 3px solid var(--vert);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 100;
     box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+    z-index: 10;
 }
 
-.cart-total-display {
-    text-align: center;
-    margin-bottom: 10px;
-    background: rgba(15, 124, 74, 0.1);
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid var(--vert);
+/* MARQUEE DE BIENVENUE */
+.marquee-container {
+  overflow: hidden;
+  position: relative;
+  background:#fff;
+  border-radius:10px;
+  border:2px solid var(--vert);
+  padding:5px 10px;
+  margin-bottom:15px;
 }
 
-.cart-total-display h5 {
-    margin: 0;
-    font-size: 1.3rem;
-    color: var(--vert);
+.marquee {
+  display: inline-block;
+  white-space: nowrap;
+  position: relative;
+  animation: marqueeAnim 15s linear infinite;
+  font-weight:bold;
+  color:var(--vert);
 }
 
-.cart-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+@keyframes marqueeAnim {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
 
-.cart-buttons button {
-    flex: 1;
-    padding: 0.8rem;
-    font-weight: bold;
-    border-radius: 20px;
-    border: none;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    max-width: 250px;
+/* FOOTER TEXTE FIXE */
+footer .fixed-text {
+  color: var(--or);
+  font-weight: bold;
+  display:block;
 }
 
-.btn-checkout {
-    background: var(--vert);
-    color: white;
-}
-
-.btn-checkout:hover {
-    background: #0c6b40;
-    transform: translateY(-2px);
-}
-
-.btn-continue {
-    background: #6c757d;
-    color: white;
-}
-
-.btn-continue:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
-}
-
-/* ITEMS DU PANIER */
+/* ITEMS DU PANIER DANS L'OFFCANVAS */
 .cart-item {
     display: flex;
     flex-direction: column;
@@ -494,7 +425,6 @@ transform:scale(1.2);
     position: relative;
 }
 
-/* TRAIT ENTRE LES ARTICLES */
 .cart-item:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -667,36 +597,107 @@ transform:scale(1.2);
     outline: none;
 }
 
-/* MARQUEE DE BIENVENUE */
-.marquee-container {
-  overflow: hidden;
-  position: relative;
-  background:#fff;
-  border-radius:10px;
-  border:2px solid var(--vert);
-  padding:5px 10px;
-  margin-bottom:15px;
+/* BOUTONS COMMANDER */
+.cart-footer .btn-checkout {
+    background: var(--vert);
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    font-weight: bold;
+    border-radius: 20px;
+    width: 100%;
+    margin-bottom: 10px;
+    transition: all 0.3s;
 }
 
-.marquee {
-  display: inline-block;
-  white-space: nowrap;
-  position: relative;
-  animation: marqueeAnim 15s linear infinite;
-  font-weight:bold;
-  color:var(--vert);
+.cart-footer .btn-checkout:hover {
+    background: #0c6b40;
+    transform: translateY(-2px);
 }
 
-@keyframes marqueeAnim {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+.cart-footer .btn-continue {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    font-weight: bold;
+    border-radius: 20px;
+    width: 100%;
+    transition: all 0.3s;
 }
 
-/* FOOTER TEXTE FIXE */
-footer .fixed-text {
-  color: var(--or);
-  font-weight: bold;
-  display:block;
+.cart-footer .btn-continue:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* TOTAL DU PANIER */
+.cart-total-display {
+    text-align: center;
+    margin-bottom: 15px;
+    background: rgba(15, 124, 74, 0.1);
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--vert);
+}
+
+.cart-total-display h5 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--vert);
+}
+
+/* PANIER VIDE */
+.empty-cart {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #666;
+}
+
+.empty-cart i {
+    font-size: 3rem;
+    color: var(--vert);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Scrollbar personnalisée */
+.cart-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cart-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.cart-content::-webkit-scrollbar-thumb {
+    background: var(--vert);
+    border-radius: 10px;
+}
+
+.cart-content::-webkit-scrollbar-thumb:hover {
+    background: #0c6b40;
+}
+
+/* Animation de scroll vers le haut */
+@keyframes scrollToTop {
+    0% { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scroll-top-animation {
+    animation: scrollToTop 0.5s ease-out;
+}
+
+/* FORCER SWEETALERT2 AU-DESSUS */
+.swal2-container {
+    z-index: 10000 !important;
 }
 
 /* AMÉLIORATIONS MOBILE */
@@ -721,37 +722,6 @@ footer .fixed-text {
     .carousel-btn {
         width: 36px;
         height: 36px;
-        font-size: 1.2rem;
-    }
-    
-    .cart-modal-content {
-        border-radius: 0;
-    }
-    
-    .cart-modal-header {
-        padding: 1rem 1.2rem;
-    }
-    
-    .cart-modal-header h3 {
-        font-size: 1.3rem;
-    }
-    
-    .cart-modal-body {
-        padding: 1rem 1.2rem;
-        padding-bottom: 180px;
-    }
-    
-    .cart-buttons {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .cart-buttons button {
-        max-width: 100%;
-        padding: 0.7rem;
-    }
-    
-    .cart-total-display h5 {
         font-size: 1.2rem;
     }
     
@@ -801,30 +771,17 @@ footer .fixed-text {
         height: 36px !important;
         font-size: 1.2rem !important;
     }
+    
+    /* Offcanvas plus large sur mobile */
+    .offcanvas-cart {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 }
 
 @media (max-width: 480px) {
     .product-carousel-container {
         height: 160px;
-    }
-    
-    .cart-modal-header {
-        padding: 0.8rem 1rem;
-    }
-    
-    .cart-modal-header h3 {
-        font-size: 1.2rem;
-    }
-    
-    .cart-modal-body {
-        padding: 0.8rem 1rem;
-        padding-bottom: 190px;
-    }
-    
-    .close-cart-modal {
-        font-size: 1.5rem;
-        width: 35px;
-        height: 35px;
     }
     
     .cart-item-top img {
@@ -855,59 +812,43 @@ footer .fixed-text {
         height: 1px;
         background: linear-gradient(to right, transparent, var(--vert), transparent);
     }
+    
+    .offcanvas-cart .offcanvas-body .cart-footer {
+        padding: 0.8rem;
+    }
+    
+    .cart-footer .btn-checkout,
+    .cart-footer .btn-continue {
+        padding: 0.7rem;
+        font-size: 0.9rem;
+    }
 }
 
-/* Scrollbar personnalisée */
-.cart-modal-body::-webkit-scrollbar {
-    width: 6px;
+/* Compatibilité avec tous les navigateurs */
+.offcanvas-cart {
+    visibility: visible !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.3s ease-in-out !important;
 }
 
-.cart-modal-body::-webkit-scrollbar-track {
-    background: #f1f1f1;
+.offcanvas-cart.show {
+    transform: translateX(0) !important;
 }
 
-.cart-modal-body::-webkit-scrollbar-thumb {
-    background: var(--vert);
-    border-radius: 10px;
+/* Pour les anciens navigateurs */
+.offcanvas-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1040;
+    display: none;
 }
 
-.cart-modal-body::-webkit-scrollbar-thumb:hover {
-    background: #0c6b40;
-}
-
-/* Style pour panier vide */
-.empty-cart {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: #666;
-}
-
-.empty-cart i {
-    font-size: 3rem;
-    color: var(--vert);
-    margin-bottom: 1rem;
+.offcanvas-backdrop.show {
     display: block;
-}
-
-/* Animation de scroll vers le haut */
-@keyframes scrollToTop {
-    0% { 
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    100% { 
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.scroll-top-animation {
-    animation: scrollToTop 0.5s ease-out;
-}
-
-/* FORCER SWEETALERT2 AU-DESSUS */
-.swal2-container {
-    z-index: 10000 !important;
 }
 </style>
 </head>
@@ -922,13 +863,13 @@ footer .fixed-text {
 
 <h5 class="m-0">Produits Marocains 🇲🇦</h5>
 
-<button class="btn btn-light position-relative" onclick="openCart()">
+<button class="btn btn-light position-relative" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" onclick="updateCartContent()">
 <i class="fa fa-shopping-cart"></i>
 <span class="badge position-absolute top-0 start-100 translate-middle" id="cartCount">0</span>
 </button>
 </header>
 
-<!-- OFFCANVAS -->
+<!-- OFFCANVAS MENU (GAUCHE) -->
 <div class="offcanvas offcanvas-start" id="menu">
 <div class="offcanvas-header">
 <h5>Menu</h5>
@@ -982,35 +923,34 @@ footer .fixed-text {
 </div>
 </div>
 
+<!-- OFFCANVAS PANIER (DROITE) -->
+<div class="offcanvas offcanvas-end offcanvas-cart" id="cartOffcanvas" tabindex="-1">
+<div class="offcanvas-header">
+<h5 class="offcanvas-title">Votre panier</h5>
+<button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+</div>
+
+<div class="offcanvas-body">
+<div class="cart-content" id="cartContent">
+<!-- Le contenu du panier sera injecté ici -->
+</div>
+
+<div class="cart-footer">
+<div class="cart-total-display">
+<h5>Total: <b><span id="cartTotal">0</span> DH</b></h5>
+</div>
+
+<button class="btn-checkout" onclick="checkout()">Commander via WhatsApp</button>
+<button class="btn-continue" data-bs-dismiss="offcanvas">Continuer mes achats</button>
+</div>
+</div>
+</div>
+
 <!-- MODAL POUR IMAGE AGRANDIE -->
 <div class="image-modal" id="imageModal">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal()">&times;</button>
         <img id="modalImage" class="modal-img" src="" alt="Image agrandie">
-    </div>
-</div>
-
-<!-- MODALE PANIER PERSONNALISÉE -->
-<div class="cart-modal" id="cartModal">
-    <div class="cart-modal-content">
-        <div class="cart-modal-header">
-            <h3>Votre panier</h3>
-            <button class="close-cart-modal" onclick="closeCart()">&times;</button>
-        </div>
-        
-        <div class="cart-modal-body" id="cartBody">
-            <!-- Le contenu du panier sera injecté ici -->
-        </div>
-        
-        <div class="cart-modal-footer">
-            <div class="cart-total-display">
-                <h5>Total: <b><span id="cartTotal">0</span> DH</b></h5>
-            </div>
-            <div class="cart-buttons">
-                <button class="btn-checkout" onclick="checkout()">Commander via WhatsApp</button>
-                <button class="btn-continue" onclick="closeCart()">Continuer mes achats</button>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -1186,43 +1126,6 @@ document.getElementById('imageModal').addEventListener('click', function(e) {
         closeModal();
     }
 });
-
-/* FONCTIONS POUR LE MODAL PANIER */
-function openCart() {
-    if(cart.length===0){
-        showEmptyCartAlert();
-        return;
-    }
-
-    const modal = document.getElementById('cartModal');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    renderCartContent();
-}
-
-function closeCart() {
-    const modal = document.getElementById('cartModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-    saveCartFormData();
-}
-
-document.getElementById('cartModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeCart();
-    }
-});
-
-function showEmptyCartAlert() {
-    Swal.fire({
-        title: 'Panier vide',
-        text: 'Votre panier est actuellement vide',
-        icon: 'info',
-        timer: 1500,
-        showConfirmButton: false,
-        allowOutsideClick: true
-    });
-}
 
 /* MÉLANGE ALÉATOIRE DES PRODUITS */
 function shuffleProducts(productsArray) {
@@ -1624,19 +1527,20 @@ function updateBadge(){
     document.getElementById('cartCount').innerText = count;
 }
 
-/* RENDRE LE CONTENU DU PANIER - NOUVELLE APPROCHE */
-function renderCartContent() {
-    const cartBody = document.getElementById('cartBody');
+/* METTRE À JOUR LE CONTENU DU PANIER */
+function updateCartContent() {
+    const cartContent = document.getElementById('cartContent');
+    const cartTotalElement = document.getElementById('cartTotal');
     
-    if(cart.length===0){
-        cartBody.innerHTML = `
+    if(cart.length === 0){
+        cartContent.innerHTML = `
             <div class="empty-cart">
                 <i class="fas fa-shopping-cart"></i>
                 <h4>Votre panier est vide</h4>
                 <p>Ajoutez des produits pour commencer vos achats</p>
             </div>
         `;
-        document.getElementById('cartTotal').textContent = '0';
+        cartTotalElement.textContent = '0';
         return;
     }
     
@@ -1667,7 +1571,19 @@ function renderCartContent() {
         </div>`;
     });
     
-    const deliveryHtml = `
+    // Récupérer les données sauvegardées du formulaire
+    const savedName = localStorage.getItem('cartNom') || '';
+    const savedAddress = localStorage.getItem('cartAdresse') || '';
+    const savedPhone = localStorage.getItem('cartTel') || '';
+    const savedComment = localStorage.getItem('cartComment') || '';
+    const savedDelivery = localStorage.getItem('cartDelivery') || '0';
+    
+    deliveryCost = parseInt(savedDelivery) || 0;
+    
+    const total = subtotal + deliveryCost;
+    cartTotalElement.textContent = total;
+    
+    const formHtml = `
         <div class="cart-form mt-4">
             <div class="mb-3">
                 <label class="form-label fw-bold">Options de livraison</label>
@@ -1681,26 +1597,22 @@ function renderCartContent() {
             
             <input type="text" id="customerName" class="form-control mb-2" 
                    placeholder="Nom *" 
-                   value="${localStorage.getItem('cartNom') || ''}">
+                   value="${savedName}">
             
             <input type="text" id="customerAddress" class="form-control mb-2" 
                    placeholder="Adresse *" 
-                   value="${localStorage.getItem('cartAdresse') || ''}">
+                   value="${savedAddress}">
             
             <input type="tel" id="customerPhone" class="form-control mb-2" 
                    placeholder="Téléphone *" 
-                   value="${localStorage.getItem('cartTel') || ''}">
+                   value="${savedPhone}">
             
             <textarea id="customerComment" class="form-control" 
-                      placeholder="Commentaire (optionnel)" rows="3">${localStorage.getItem('cartComment') || ''}</textarea>
+                      placeholder="Commentaire (optionnel)" rows="3">${savedComment}</textarea>
         </div>
     `;
     
-    cartBody.innerHTML = itemsHtml + deliveryHtml;
-    
-    // Calculer le total
-    const total = subtotal + deliveryCost;
-    document.getElementById('cartTotal').textContent = total;
+    cartContent.innerHTML = itemsHtml + formHtml;
     
     // Attacher les événements
     attachCartEvents();
@@ -1738,12 +1650,6 @@ function attachCartEvents() {
             removeCartItem(idx);
         });
     });
-    
-    // Option de livraison
-    document.getElementById('deliveryOption')?.addEventListener('change', function() {
-        deliveryCost = parseInt(this.value) || 0;
-        updateCartTotal();
-    });
 }
 
 /* ATTACHER LES ÉVÉNEMENTS AU FORMULAIRE */
@@ -1758,7 +1664,13 @@ function attachFormListeners() {
     if (addressInput) addressInput.addEventListener('input', saveCartFormData);
     if (phoneInput) phoneInput.addEventListener('input', saveCartFormData);
     if (commentInput) commentInput.addEventListener('input', saveCartFormData);
-    if (deliveryOption) deliveryOption.addEventListener('change', saveCartFormData);
+    if (deliveryOption) {
+        deliveryOption.addEventListener('change', function() {
+            deliveryCost = parseInt(this.value) || 0;
+            saveCartFormData();
+            updateCartTotal();
+        });
+    }
 }
 
 /* SAUVEGARDER LES DONNÉES DU FORMULAIRE */
@@ -1771,8 +1683,6 @@ function saveCartFormData() {
     const deliveryOption = document.getElementById('deliveryOption');
     if (deliveryOption) {
         localStorage.setItem('cartDelivery', deliveryOption.value);
-        deliveryCost = parseInt(deliveryOption.value) || 0;
-        updateCartTotal();
     }
 }
 
@@ -1835,12 +1745,11 @@ function removeCartItem(idx) {
         if (result.isConfirmed) {
             cart.splice(idx,1);
             updateBadge();
+            updateCartContent();
             
             if (cart.length === 0) {
-                closeCart();
-                showEmptyCartAlert();
-            } else {
-                renderCartContent();
+                const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('cartOffcanvas'));
+                if (offcanvas) offcanvas.hide();
             }
         }
     });
@@ -1888,7 +1797,9 @@ function checkout() {
     localStorage.removeItem('cartComment');
     localStorage.removeItem('cartDelivery');
     
-    closeCart();
+    // Fermer l'offcanvas
+    const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('cartOffcanvas'));
+    if (offcanvas) offcanvas.hide();
     
     setTimeout(() => {
         window.open(`https://wa.me/212661906684?text=${msg}`, "_blank");
@@ -1914,10 +1825,18 @@ document.addEventListener('DOMContentLoaded', function() {
     updateFilterBadge();
     updateBadge();
     
-    const savedDelivery = localStorage.getItem('cartDelivery');
-    if (savedDelivery) {
-        deliveryCost = parseInt(savedDelivery) || 0;
+    // Gérer l'ouverture du panier
+    const cartButton = document.querySelector('[data-bs-target="#cartOffcanvas"]');
+    if (cartButton) {
+        cartButton.addEventListener('click', function() {
+            updateCartContent();
+        });
     }
+    
+    // Gérer la fermeture du panier
+    document.getElementById('cartOffcanvas')?.addEventListener('hidden.bs.offcanvas', function () {
+        saveCartFormData();
+    });
     
     if (window.location.hash) {
         setTimeout(() => {

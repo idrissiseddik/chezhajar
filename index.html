@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Boutique Marocaine - Amlou, Miel & Huiles</title>
+<title>Boutique Marocaine - Safran, Amlou, Miel & Huiles</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- BOOTSTRAP -->
@@ -52,19 +52,56 @@ border:3px solid var(--or);
 border-radius:20px;
 box-shadow:0 10px 20px rgba(0,0,0,.15);
 overflow:hidden;
-height: 100%; /* Assure que toutes les cartes ont la même hauteur */
+height: 100%;
 display: flex;
 flex-direction: column;
+position: relative;
 }
 
-/* CAROUSEL POUR PRODUIT - Image prend tout l'espace */
+/* BADGE RUPTURE DE STOCK */
+.stock-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #dc3545;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 20;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Désactiver le bouton ajouter au panier pour les produits en rupture */
+.card.out-of-stock .btn-success {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.card.out-of-stock .qty-container button {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    cursor: not-allowed;
+}
+
+/* CAROUSEL POUR PRODUIT */
 .product-carousel-container {
     position: relative;
     width: 100%;
-    height: 200px; /* Hauteur fixe pour l'image */
+    height: 200px;
     overflow: hidden;
     border-bottom:3px solid var(--or);
-    flex-shrink: 0; /* Empêche le conteneur de rétrécir */
+    flex-shrink: 0;
 }
 
 .product-carousel {
@@ -78,9 +115,11 @@ flex-direction: column;
     position: absolute;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* L'image couvre tout l'espace disponible */
+    object-fit: contain;
+    background-color: #f8f9fa;
     cursor: pointer;
     transition: opacity 0.5s ease;
+    padding: 10px;
 }
 
 .carousel-btn {
@@ -146,16 +185,15 @@ flex-direction: column;
     background: var(--or);
 }
 
-/* Contenu de la carte sous l'image - TEXTE CENTRÉ */
+/* Contenu de la carte sous l'image */
 .card-content {
     padding: 15px;
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Prend l'espace restant */
-    text-align: center; /* Centre tout le texte */
+    flex-grow: 1;
+    text-align: center;
 }
 
-/* Styles pour centrer spécifiquement le nom et le prix */
 .product-name {
     margin: 8px 0 5px 0;
     font-weight: 700;
@@ -309,46 +347,239 @@ transform:scale(1.2);
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* PANIER MODALE */
+/* STYLES PERSONNALISÉS POUR SWEETALERT2 MODALE PANIER */
+.swal2-popup {
+    max-height: 85vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    width: 95% !important;
+    max-width: 500px !important;
+}
+
+.swal2-header {
+    position: sticky !important;
+    top: 0 !important;
+    background: white !important;
+    z-index: 100 !important;
+    padding: 1.5rem 1.5rem 0.5rem 1.5rem !important;
+    margin-bottom: 0 !important;
+    border-bottom: 2px solid var(--vert) !important;
+    flex-shrink: 0 !important;
+}
+
+.swal2-title {
+    font-size: 1.5rem !important;
+    color: var(--vert) !important;
+    font-weight: bold !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+}
+
+.swal2-html-container {
+    overflow-y: auto !important;
+    max-height: calc(60vh - 120px) !important;
+    flex-grow: 1 !important;
+    margin: 0 !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 1rem !important;
+}
+
+.swal2-actions {
+    position: sticky !important;
+    bottom: 0 !important;
+    background: white !important;
+    padding: 0.75rem 1.5rem 1rem 1.5rem !important;
+    margin: 0 !important;
+    border-top: 2px solid var(--vert) !important;
+    flex-shrink: 0 !important;
+    height: auto !important;
+    min-height: 70px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.swal2-confirm, .swal2-cancel {
+    padding: 0.5rem 1.5rem !important;
+    font-weight: bold !important;
+    border-radius: 20px !important;
+    margin: 0 !important;
+}
+
+.swal2-confirm {
+    background-color: var(--vert) !important;
+    border-color: var(--vert) !important;
+}
+
+.swal2-cancel {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
+}
+
+/* CONTENU DU PANIER - STYLES AMÉLIORÉS */
 .swal2-html-container .cart-item {
-    display:flex;
-    flex-direction:column;
-    border-bottom:1px solid #ddd;
-    padding:5px 0;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #ddd;
+    padding: 12px 0;
+    margin-bottom: 8px;
+    width: 100%;
 }
 
 .swal2-html-container .cart-item-top {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    width: 100%;
 }
 
 .swal2-html-container .cart-item-top img {
-    width:50px;
-    height:50px;
-    object-fit: cover;
-    border-radius:6px;
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 4px;
+    background: white;
+    flex-shrink: 0;
+}
+
+.swal2-html-container .cart-item-top span {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.swal2-html-container .cart-item-top span strong {
+    font-size: 1rem;
+    color: var(--vert);
+    display: block;
+    margin-bottom: 3px;
+}
+
+.swal2-html-container .cart-item-top span small {
+    font-size: 0.85rem;
+    color: #666;
+    display: block;
 }
 
 .swal2-html-container .cart-item-bottom {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
 }
 
-.swal2-html-container .cart-item-bottom input[type="number"] {
-    width:50px;
-    text-align:center;
+/* CONTAINER QUANTITÉ RÉDUIT POUR RESTER SUR LA MÊME LIGNE */
+.swal2-html-container .cart-item-bottom .quantity-container {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+    min-width: 120px;
 }
 
-.swal2-html-container .qty-btn{
-    cursor:pointer;
-    padding:2px 6px;
-    border-radius:4px;
-    border:1px solid #0f7c4a;
-    background:#f6f1e7;
-    margin:0 2px;
+.swal2-html-container .cart-item-bottom .quantity-container input[type="number"] {
+    width: 40px !important;
+    height: 32px;
+    text-align: center;
+    border: 2px solid var(--vert) !important;
+    border-radius: 6px;
+    padding: 2px !important;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin: 0 2px;
+}
+
+.swal2-html-container .cart-item-bottom .qty-btn {
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 2px solid var(--vert) !important;
+    background: var(--beige);
+    font-weight: bold;
+    font-size: 0.9rem;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.swal2-html-container .cart-item-bottom .qty-btn:hover {
+    background: var(--vert);
+    color: white;
+    transform: scale(1.05);
+}
+
+.swal2-html-container .cart-item-bottom .item-total {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #000;
+    min-width: 70px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.swal2-html-container .cart-item-bottom .remove-item {
+    cursor: pointer;
+    color: #dc3545;
+    font-size: 1.1rem;
+    padding: 5px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.swal2-html-container .cart-item-bottom .remove-item:hover {
+    background: rgba(220, 53, 69, 0.1);
+    transform: scale(1.1);
+}
+
+/* STYLES POUR LES CHAMPS DE FORMULAIRE */
+.swal2-html-container input,
+.swal2-html-container select,
+.swal2-html-container textarea {
+    margin-bottom: 10px !important;
+    border: 2px solid var(--vert) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 0.75rem !important;
+    width: 100% !important;
+    font-size: 0.95rem !important;
+}
+
+.swal2-html-container input:focus,
+.swal2-html-container select:focus,
+.swal2-html-container textarea:focus {
+    border-color: var(--or) !important;
+    box-shadow: 0 0 0 0.25rem rgba(201, 162, 77, 0.25) !important;
+}
+
+/* Styles pour le total et la livraison */
+.swal2-html-container .cart-total {
+    background: rgba(15, 124, 74, 0.1);
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+    border: 1px solid var(--vert);
+    text-align: center;
+}
+
+.swal2-html-container .cart-total h5 {
+    margin: 0;
+    font-size: 1.2rem;
 }
 
 /* MARQUEE DE BIENVENUE */
@@ -412,23 +643,29 @@ footer .fixed-text {
 
 <div>
 <p class="fw-bold">Terroir marocain authentique</p>
-<p>Amlou – Miel – Huiles</p>
+<p>Amlou – Miel – Huiles – Safran</p>
 
 <!-- FILTRES PAR CATÉGORIE -->
 <div class="mt-4">
     <div class="fw-bold mb-2">Filtrer par catégorie</div>
     <div class="d-flex flex-column gap-2">
         <button class="btn btn-outline-success btn-sm" onclick="filterProducts('all')">
-            Tous les produits
+            <i class="fas fa-boxes"></i> Tous les produits
         </button>
         <button class="btn btn-outline-success btn-sm" onclick="filterProducts('amlou')">
-            <i class="fas fa-seedling"></i> Amlou
+            <i class="fas fa-blender"></i> Amlou
         </button>
         <button class="btn btn-outline-success btn-sm" onclick="filterProducts('miel')">
-            <i class="fas fa-honey-pot"></i> Miel
+            <i class="fas fa-jar"></i> Miel
         </button>
         <button class="btn btn-outline-success btn-sm" onclick="filterProducts('huile')">
             <i class="fas fa-oil-can"></i> Huiles
+        </button>
+        <button class="btn btn-outline-success btn-sm" onclick="filterProducts('safran')">
+            <i class="fas fa-seedling"></i> Safran
+        </button>
+        <button class="btn btn-outline-success btn-sm" onclick="filterProducts('henné')">
+            <i class="fas fa-leaf"></i> Henné
         </button>
     </div>
 </div>
@@ -461,7 +698,7 @@ footer .fixed-text {
 <div class="container mt-4">
   <div class="marquee-container">
     <div class="marquee">
-      Bienvenue dans notre boutique marocaine 🇲🇦 - Amlou, Miel et Huiles authentiques !
+      Bienvenue dans notre boutique marocaine 🇲🇦 - Henné, Safran, Amlou, Miel et Huiles authentiques !
     </div>
   </div>
 </div>
@@ -484,11 +721,12 @@ footer .fixed-text {
 /* PRODUITS avec plusieurs images et grammage */
 const products = [
 {
-    id: 1,
+    id: 9,
     name: "Amlou Amandes",
-    price: 50,
+    price: 150,
     weight: "800G",
     category: "amlou",
+    outOfStock: true,
     images: [
         "images/amlou1.jpg",
         "images/amlou2.jpg", 
@@ -496,11 +734,12 @@ const products = [
     ]
 },
 {
-    id: 2,
-    name: "Miel Naturel",
-    price: 70,
-    weight: "1000G",
+    id: 8,
+    name: "Miel au citron",
+    price: 50,
+    weight: "500G",
     category: "miel",
+    outOfStock: false,
     images: [
         "images/miel1.jpg",
         "images/miel2.jpg",
@@ -508,11 +747,38 @@ const products = [
     ]
 },
 {
-    id: 3,
+    id: 7,
+    name: "Amlou Cacao",
+    price: 50,
+    weight: "800G",
+    category: "amlou",
+    outOfStock: true,
+    images: [
+        "images/amlou1.jpg",
+        "images/amlou2.jpg", 
+        "images/amlou3.jpg"
+    ]
+},
+{
+    id: 6,
+    name: "Miel au thym",
+    price: 50,
+    weight: "1KG",
+    category: "miel",
+    outOfStock: false,
+    images: [
+        "images/miel1.jpg",
+        "images/miel2.jpg",
+        "images/miel3.jpg"
+    ]
+},
+{
+    id: 5,
     name: "Huile d'Olive",
     price: 60,
     weight: "1L",
     category: "huile",
+    outOfStock: false,
     images: [
         "images/huile1.jpg",
         "images/huile2.jpg",
@@ -525,10 +791,52 @@ const products = [
     price: 120,
     weight: "1L",
     category: "huile",
+    outOfStock: true,
     images: [
         "images/huile1.jpg",
         "images/huile2.jpg",
         "images/huile3.jpg"
+    ]
+},
+{
+    id: 3,
+    name: "Henné pour les cheveux",
+    price: 50,
+    weight: "1Kg",
+    category: "henné",
+    outOfStock: false,
+    images: [
+        "images/henne1.jpg",
+        "images/henne2.jpg",
+        "images/henne3.jpg"
+    ]
+},
+{
+    id: 2,
+    name: "Henné pour le corps",
+    price: 50,
+    weight: "1Kg",
+    category: "henné",
+    outOfStock: false,
+    images: [
+        "images/henne1.jpg",
+        "images/henne2.jpg",
+        "images/henne3.jpg"
+    ]
+},
+{
+    id: 1,
+    name: "Safran",
+    price: 45,
+    weight: "1,5G",
+    category: "safran",
+    outOfStock: false,
+    images: [
+        "images/safran1.jpg",
+        "images/safran2.jpg",
+        "images/safran3.jpg",
+        "images/safran4.jpg",
+        "images/safran5.jpg"
     ]
 }
 ];
@@ -543,30 +851,28 @@ function openModal(imageSrc) {
     const modalImg = document.getElementById('modalImage');
     modalImg.src = imageSrc;
     modal.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Empêche le scroll
+    document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
     const modal = document.getElementById('imageModal');
     modal.classList.remove('active');
-    document.body.style.overflow = 'auto'; // Réactive le scroll
+    document.body.style.overflow = 'auto';
 }
 
-// Fermer le modal en cliquant en dehors de l'image
 document.getElementById('imageModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeModal();
     }
 });
 
-// Fermer avec la touche ESC
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeModal();
     }
 });
 
-/* MÉLANGE ALÉATOIRE DES PRODUITS (Fisher-Yates) */
+/* MÉLANGE ALÉATOIRE DES PRODUITS */
 function shuffleProducts(productsArray) {
     const shuffled = [...productsArray];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -582,7 +888,7 @@ class ProductCarousel {
         this.productId = productId;
         this.currentIndex = 0;
         this.interval = null;
-        this.autoSlideDelay = 3000; // 3 secondes entre chaque slide
+        this.autoSlideDelay = 3000;
         this.isHovered = false;
         this.images = [];
         this.dots = [];
@@ -592,7 +898,6 @@ class ProductCarousel {
         this.images = document.querySelectorAll(`#carousel-${this.productId} .carousel-image`);
         this.dots = document.querySelectorAll(`#carousel-${this.productId} .carousel-dot`);
         
-        // Ajouter les événements hover
         const carouselElement = document.getElementById(`carousel-${this.productId}`);
         if (carouselElement) {
             carouselElement.addEventListener('mouseenter', () => {
@@ -620,8 +925,6 @@ class ProductCarousel {
     goTo(index) {
         this.currentIndex = index;
         this.updateCarousel();
-        
-        // Réinitialiser le timer lorsqu'on clique manuellement
         this.resetAutoSlide();
     }
     
@@ -642,7 +945,7 @@ class ProductCarousel {
     }
     
     startAutoSlide() {
-        this.stopAutoSlide(); // S'assurer qu'il n'y a pas d'intervalle en cours
+        this.stopAutoSlide();
         
         if (this.images.length > 1) {
             this.interval = setInterval(() => {
@@ -659,7 +962,6 @@ class ProductCarousel {
         if (this.interval) {
             clearInterval(this.interval);
             this.interval = null;
-            // Retirer de la liste globale
             const index = allIntervals.indexOf(this.interval);
             if (index > -1) {
                 allIntervals.splice(index, 1);
@@ -690,7 +992,6 @@ function stopAllAutoSlides() {
     Object.keys(carousels).forEach(productId => {
         carousels[productId].stopAutoSlide();
     });
-    // Nettoyer tous les intervalles
     allIntervals.forEach(interval => clearInterval(interval));
     allIntervals = [];
 }
@@ -701,16 +1002,15 @@ function filterProducts(category) {
     renderProducts();
     updateFilterBadge();
     
-    // Fermer le menu offcanvas après sélection
     const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('menu'));
     if (offcanvas) offcanvas.hide();
     
-    // Afficher un message de filtre actif
     const filterText = category === 'all' ? 'Tous les produits' : 
                       category === 'amlou' ? 'Amlou' : 
-                      category === 'miel' ? 'Miel' : 'Huiles';
+                      category === 'safran' ? 'Safran' : 
+                      category === 'miel' ? 'Miel' : 
+                      category === 'henné' ? 'Henné' : 'Huiles';
     
-    // Afficher un petit badge temporaire
     const marquee = document.querySelector('.marquee');
     if (marquee) {
         const originalText = marquee.textContent;
@@ -739,20 +1039,20 @@ function updateFilterBadge() {
     
     if (filterElement) {
         const filterText = currentFilter === 'amlou' ? 'Amlou' : 
+                          currentFilter === 'safran' ? 'Safran' :
+                          currentFilter === 'henné' ? 'Henné' :
                           currentFilter === 'miel' ? 'Miel' : 'Huiles';
         filterElement.textContent = filterText;
     }
 }
 
-/* RENDRE LES PRODUITS - Version avec mélange aléatoire ET FILTRE */
+/* RENDRE LES PRODUITS */
 function renderProducts() {
-    // Filtrer les produits selon la catégorie sélectionnée
     let filteredProducts = products;
     if (currentFilter !== 'all') {
         filteredProducts = products.filter(p => p.category === currentFilter);
     }
     
-    // Mélanger les produits aléatoirement
     const shuffledProducts = shuffleProducts(filteredProducts);
     
     let html = '';
@@ -761,9 +1061,13 @@ function renderProducts() {
         const carouselId = `carousel-${p.id}`;
         carousels[p.id] = new ProductCarousel(p.id);
         
+        const cardClass = p.outOfStock ? 'card out-of-stock' : 'card';
+        
         html += `
         <div class="col-md-4 mb-4">
-            <div class="card">
+            <div class="${cardClass}">
+                ${p.outOfStock ? '<div class="stock-badge">RUPTURE</div>' : ''}
+                
                 <div class="product-carousel-container">
                     <div class="product-carousel" id="${carouselId}">
                         ${p.images.map((img, index) => `
@@ -799,24 +1103,19 @@ function renderProducts() {
                     <p class="product-price">${p.price} DH</p>
 
                     <div class="qty-container">
-                        <button class="btn btn-outline-success btn-sm" onclick="changeCardQty(${p.id},-1)">-
-
-</button>
-                        <input type="number" min="1" value="1" class="qty" id="qty${p.id}">
-                        <button class="btn btn-outline-success btn-sm" onclick="changeCardQty(${p.id},1)">
-
-+</button>
+                        <button class="btn btn-outline-success btn-sm" onclick="changeCardQty(${p.id},-1)" ${p.outOfStock ? 'disabled' : ''}>-</button>
+                        <input type="number" min="1" value="1" class="qty" id="qty${p.id}" ${p.outOfStock ? 'disabled' : ''}>
+                        <button class="btn btn-outline-success btn-sm" onclick="changeCardQty(${p.id},1)" ${p.outOfStock ? 'disabled' : ''}>+</button>
                     </div>
 
-                    <button class="btn btn-success mt-auto" onclick="addToCart(${p.id})">
-                        <i class="fa fa-cart-plus"></i> Ajouter au panier
+                    <button class="btn btn-success mt-auto" onclick="${p.outOfStock ? 'showOutOfStockAlert()' : `addToCart(${p.id})`}" ${p.outOfStock ? 'disabled' : ''}>
+                        <i class="fa fa-cart-plus"></i> ${p.outOfStock ? 'Rupture de stock' : 'Ajouter au panier'}
                     </button>
                 </div>
             </div>
         </div>`;
     });
     
-    // Si aucun produit après filtrage
     if (shuffledProducts.length === 0) {
         html = `
             <div class="col-12 text-center py-5">
@@ -832,10 +1131,20 @@ function renderProducts() {
     
     document.getElementById('products').innerHTML = html;
     
-    // Initialiser tous les carrousels
     setTimeout(() => {
         startAllAutoSlides();
     }, 500);
+}
+
+/* ALERTE POUR PRODUIT EN RUPTURE */
+function showOutOfStockAlert() {
+    Swal.fire({
+        title: 'Produit en rupture',
+        text: 'Ce produit est momentanément indisponible',
+        icon: 'warning',
+        timer: 2000,
+        showConfirmButton: false
+    });
 }
 
 /* MODIFIER QUANTITÉ DANS CARTE */
@@ -848,6 +1157,12 @@ function changeCardQty(id,delta){
 
 /* AJOUTER AU PANIER */
 function addToCart(id){
+    const product = products.find(p => p.id === id);
+    if (product && product.outOfStock) {
+        showOutOfStockAlert();
+        return;
+    }
+    
     let qty=parseInt(document.getElementById('qty'+id).value);
     let item=cart.find(i=>i.id===id);
     if(item){
@@ -872,80 +1187,140 @@ function updateBadge(){
     cart.reduce((a,b)=>a+b.qty,0);
 }
 
-/* OUVRIR PANIER */
-function openCart(){
+/* OUVRIR PANIER - NOUVELLE VERSION AVEC MISE À JOUR DYNAMIQUE */
+function openCart() {
     if(cart.length===0){
         Swal.fire('Panier vide','','info');
         return;
     }
 
-    let total=cart.reduce((a,b)=>a+b.price*b.qty,0);
-    let itemsHtml='';
-    cart.forEach((i,idx)=>{
-        itemsHtml+=`
-        <div class="cart-item">
+    renderCartModal();
+}
+
+/* RENDU DE LA MODALE PANIER */
+function renderCartModal() {
+    let total = cart.reduce((a,b) => a + b.price * b.qty, 0);
+    
+    let itemsHtml = '';
+    cart.forEach((i, idx) => {
+        itemsHtml += `
+        <div class="cart-item" id="cart-item-${idx}">
           <div class="cart-item-top">
             <img src="${i.image}" alt="${i.name}">
             <span><strong>${i.name}</strong><br><small>${i.weight}</small></span>
           </div>
           <div class="cart-item-bottom">
-            <div>
-              <button class="qty-btn" onclick="changeQty(${idx},-1)">-</button>
-              <input type="number" min="1" value="${i.qty}" onchange="changeQtyInput(${idx},this.value)">
-              <button class="qty-btn" onclick="changeQty(${idx},1)">+</button>
+            <div class="quantity-container">
+              <button class="qty-btn" onclick="updateCartItemQty(${idx}, -1)">-</button>
+              <input type="number" min="1" value="${i.qty}" id="cart-qty-${idx}" 
+                     onchange="updateCartItemQtyInput(${idx}, this.value)">
+              <button class="qty-btn" onclick="updateCartItemQty(${idx}, 1)">+</button>
             </div>
-            <div>${i.price*i.qty} DH</div>
-            <div><i class="fa fa-trash remove" onclick="confirmRemove(${idx})"></i></div>
+            <div class="item-total" id="cart-item-total-${idx}">${i.price * i.qty} DH</div>
+            <div class="remove-item" onclick="confirmRemove(${idx})">
+              <i class="fa fa-trash"></i>
+            </div>
           </div>
         </div>`;
     });
 
     Swal.fire({
-        title:'Votre panier',
-        html:`
-        ${itemsHtml}
-        <select id="livraison" class="form-select mb-2" onchange="updateTotal()">
-        <option value="0">Sans livraison</option>
-        <option value="10">Avec livraison (+10 DH)</option>
-        </select>
+        title: 'Votre panier',
+        html: `
+        <div style="margin: 0 5px;">
+            ${itemsHtml}
+            <select id="livraison" class="form-select mb-2" onchange="updateCartTotal()">
+                <option value="0">Sans livraison</option>
+                <option value="10">Avec livraison (+10 DH)</option>
+            </select>
 
-        <p>Total: <b><span id="total">${total}</span> DH</b></p>
+            <div class="cart-total">
+                <h5>Total: <b><span id="total">${total}</span> DH</b></h5>
+            </div>
 
-        <input id="nom" class="form-control mb-2" placeholder="Nom *">
-        <input id="adresse" class="form-control mb-2" placeholder="Adresse *">
-        <input id="tel" class="form-control mb-2" placeholder="Téléphone *">
-        <textarea id="comment" class="form-control" placeholder="Commentaire (optionnel)"></textarea>
-        `,
-        showCancelButton:true,
-        confirmButtonText:'Commander via WhatsApp',
-        cancelButtonText:'Continuer mes achats',
-        preConfirm:sendOrder,
+            <input id="nom" class="form-control mb-2" placeholder="Nom *" value="${localStorage.getItem('cartNom') || ''}">
+            <input id="adresse" class="form-control mb-2" placeholder="Adresse *" value="${localStorage.getItem('cartAdresse') || ''}">
+            <input id="tel" class="form-control mb-2" placeholder="Téléphone *" value="${localStorage.getItem('cartTel') || ''}">
+            <textarea id="comment" class="form-control" placeholder="Commentaire (optionnel)" rows="2">${localStorage.getItem('cartComment') || ''}</textarea>
+        </div>`,
+        showCancelButton: true,
+        confirmButtonText: 'Commander via WhatsApp',
+        cancelButtonText: 'Continuer mes achats',
+        confirmButtonColor: '#0f7c4a',
+        cancelButtonColor: '#6c757d',
+        preConfirm: sendOrder,
         didOpen: () => {
-            // Désactiver auto-slide quand le panier est ouvert
             stopAllAutoSlides();
+            // Sauvegarder les données au fur et à mesure
+            document.getElementById('nom').addEventListener('input', saveCartFormData);
+            document.getElementById('adresse').addEventListener('input', saveCartFormData);
+            document.getElementById('tel').addEventListener('input', saveCartFormData);
+            document.getElementById('comment').addEventListener('input', saveCartFormData);
+            
+            setTimeout(() => {
+                document.getElementById('nom').focus();
+            }, 300);
         },
         willClose: () => {
-            // Réactiver auto-slide quand le panier est fermé
             startAllAutoSlides();
-        }
-    }).then((result)=>{
-        if(result.isDismissed){ 
-            renderProducts(); 
-        }
+        },
+        heightAuto: false
     });
 }
 
-/* CHANGER QUANTITÉ DANS PANIER */
-function changeQty(idx,delta){
-    cart[idx].qty+=delta;
-    if(cart[idx].qty<1) cart[idx].qty=1;
-    openCart();
+/* SAUVEGARDER LES DONNÉES DU FORMULAIRE */
+function saveCartFormData() {
+    localStorage.setItem('cartNom', document.getElementById('nom')?.value || '');
+    localStorage.setItem('cartAdresse', document.getElementById('adresse')?.value || '');
+    localStorage.setItem('cartTel', document.getElementById('tel')?.value || '');
+    localStorage.setItem('cartComment', document.getElementById('comment')?.value || '');
 }
 
-function changeQtyInput(idx,val){
-    cart[idx].qty=parseInt(val);
-    if(cart[idx].qty<1) cart[idx].qty=1;
-    openCart();
+/* MISE À JOUR DYNAMIQUE DE LA QUANTITÉ DANS LE PANIER */
+function updateCartItemQty(idx, delta) {
+    cart[idx].qty += delta;
+    if (cart[idx].qty < 1) cart[idx].qty = 1;
+    
+    // Mise à jour de l'affichage sans recharger la modale
+    const qtyInput = document.getElementById(`cart-qty-${idx}`);
+    const itemTotal = document.getElementById(`cart-item-total-${idx}`);
+    
+    if (qtyInput && itemTotal) {
+        qtyInput.value = cart[idx].qty;
+        itemTotal.textContent = `${cart[idx].price * cart[idx].qty} DH`;
+        updateCartTotal();
+        updateBadge();
+    }
+}
+
+function updateCartItemQtyInput(idx, val) {
+    const newQty = parseInt(val);
+    if (isNaN(newQty) || newQty < 1) {
+        cart[idx].qty = 1;
+    } else {
+        cart[idx].qty = newQty;
+    }
+    
+    const qtyInput = document.getElementById(`cart-qty-${idx}`);
+    const itemTotal = document.getElementById(`cart-item-total-${idx}`);
+    
+    if (qtyInput && itemTotal) {
+        qtyInput.value = cart[idx].qty;
+        itemTotal.textContent = `${cart[idx].price * cart[idx].qty} DH`;
+        updateCartTotal();
+        updateBadge();
+    }
+}
+
+/* METTRE À JOUR LE TOTAL DANS LA MODALE */
+function updateCartTotal() {
+    let livraison = parseInt(document.getElementById('livraison')?.value || 0);
+    let total = cart.reduce((a, b) => a + b.price * b.qty, 0) + livraison;
+    
+    const totalElement = document.getElementById('total');
+    if (totalElement) {
+        totalElement.textContent = total;
+    }
 }
 
 /* SUPPRIMER AVEC CONFIRMATION */
@@ -956,38 +1331,25 @@ function confirmRemove(i){
         icon:'warning',
         showCancelButton:true,
         confirmButtonText:'Oui, supprimer',
-        cancelButtonText:'Non'
+        cancelButtonText:'Non',
+        confirmButtonColor: '#dc3545'
     }).then((result)=>{
         if(result.isConfirmed){
-            const productName = cart[i].name;
-            const productWeight = cart[i].weight;
             cart.splice(i,1);
             updateBadge();
             
-            // Afficher l'alerte "supprimé"
-            Swal.fire({
-                title: 'Supprimé !',
-                text: `${productName} (${productWeight}) a été retiré du panier`,
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
-                // Si le panier est vide après suppression, ne pas rouvrir
-                if (cart.length === 0) {
-                    Swal.fire('Panier vide', 'Votre panier est maintenant vide', 'info');
-                } else {
-                    openCart(); // Réouvrir le panier
-                }
-            });
+            if (cart.length === 0) {
+                Swal.close();
+                Swal.fire('Panier vide', 'Votre panier est maintenant vide', 'info');
+            } else {
+                // Fermer et rouvrir la modale pour rafraîchir
+                Swal.close();
+                setTimeout(() => {
+                    renderCartModal();
+                }, 100);
+            }
         }
     });
-}
-
-/* METTRE A JOUR TOTAL */
-function updateTotal(){
-    let l=parseInt(document.getElementById('livraison').value);
-    let t=cart.reduce((a,b)=>a+b.price*b.qty,0)+l;
-    document.getElementById('total').innerText=t;
 }
 
 /* ENVOYER COMMANDE WHATSAPP */
@@ -997,7 +1359,7 @@ function sendOrder(){
     let tel=document.getElementById('tel').value.trim();
     let comment=document.getElementById('comment').value.trim();
     if(!nom||!adr||!tel){
-        Swal.showValidationMessage('Champs obligatoires');
+        Swal.showValidationMessage('Veuillez remplir tous les champs obligatoires (*)');
         return false;
     }
 
@@ -1020,9 +1382,21 @@ function sendOrder(){
 
     window.open(`https://wa.me/212661906684?text=${msg}`,"_blank");
 
+    // Nettoyer le localStorage
+    localStorage.removeItem('cartNom');
+    localStorage.removeItem('cartAdresse');
+    localStorage.removeItem('cartTel');
+    localStorage.removeItem('cartComment');
+    
     cart=[];
     updateBadge();
-    Swal.fire('Merci ! 🙏','Votre commande a été envoyée au vendeur','success');
+    Swal.fire({
+        title: 'Merci ! 🙏',
+        text: 'Votre commande a été envoyée au vendeur',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+    });
     renderProducts();
 }
 
@@ -1035,4 +1409,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-

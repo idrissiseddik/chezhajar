@@ -824,31 +824,14 @@ footer .fixed-text {
     }
 }
 
-/* Compatibilité avec tous les navigateurs */
-.offcanvas-cart {
-    visibility: visible !important;
-    transform: translateX(100%) !important;
-    transition: transform 0.3s ease-in-out !important;
+/* Style pour empêcher le flash du contenu */
+.cart-content {
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
-.offcanvas-cart.show {
-    transform: translateX(0) !important;
-}
-
-/* Pour les anciens navigateurs */
-.offcanvas-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 1040;
-    display: none;
-}
-
-.offcanvas-backdrop.show {
-    display: block;
+.cart-content.loaded {
+    opacity: 1;
 }
 </style>
 </head>
@@ -863,7 +846,7 @@ footer .fixed-text {
 
 <h5 class="m-0">Produits Marocains 🇲🇦</h5>
 
-<button class="btn btn-light position-relative" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" onclick="updateCartContent()">
+<button class="btn btn-light position-relative" id="cartButton">
 <i class="fa fa-shopping-cart"></i>
 <span class="badge position-absolute top-0 start-100 translate-middle" id="cartCount">0</span>
 </button>
@@ -927,7 +910,7 @@ footer .fixed-text {
 <div class="offcanvas offcanvas-end offcanvas-cart" id="cartOffcanvas" tabindex="-1">
 <div class="offcanvas-header">
 <h5 class="offcanvas-title">Votre panier</h5>
-<button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+<button type="button" class="btn-close btn-close-white" onclick="closeCartOffcanvas()"></button>
 </div>
 
 <div class="offcanvas-body">
@@ -941,7 +924,7 @@ footer .fixed-text {
 </div>
 
 <button class="btn-checkout" onclick="checkout()">Commander via WhatsApp</button>
-<button class="btn-continue" data-bs-dismiss="offcanvas">Continuer mes achats</button>
+<button class="btn-continue" onclick="closeCartOffcanvas()">Continuer mes achats</button>
 </div>
 </div>
 </div>
@@ -1105,6 +1088,7 @@ let cart = [];
 let allIntervals = [];
 let currentFilter = 'all';
 let deliveryCost = 0;
+let cartOffcanvas = null;
 
 /* FONCTIONS POUR LE MODAL D'IMAGE */
 function openModal(imageSrc) {
@@ -1524,7 +1508,67 @@ function addToCart(id){
 /* METTRE A JOUR LE BADGE */
 function updateBadge(){
     const count = cart.reduce((a,b)=>a+b.qty,0);
-    document.getElementById('cartCount').innerText = count;
+    const cartCountElement = document.getElementById('cartCount');
+    if (cartCountElement) {
+        cartCountElement.innerText = count;
+    }
+}
+
+/* OUVERTURE DU PANIER - GESTION MANUELLE POUR CHROME */
+function openCartOffcanvas() {
+    if (cart.length === 0) {
+        Swal.fire({
+            title: 'Panier vide',
+            text: 'Votre panier est actuellement vide',
+            icon: 'info',
+            timer: 1500,
+            showConfirmButton: false,
+            allowOutsideClick: true
+        });
+        return;
+    }
+    
+    // Mise à jour du contenu avant d'ouvrir
+    updateCartContent();
+    
+    // Ouvrir l'offcanvas manuellement
+    const offcanvasElement = document.getElementById('cartOffcanvas');
+    if (offcanvasElement) {
+        // Solution spécifique pour Chrome
+        offcanvasElement.classList.add('show');
+        offcanvasElement.style.visibility = 'visible';
+        offcanvasElement.style.transform = 'translateX(0)';
+        
+        // Ajouter le backdrop
+        const backdrop = document.createElement('div');
+        backdrop.className = 'offcanvas-backdrop fade show';
+        backdrop.style.zIndex = '1040';
+        document.body.appendChild(backdrop);
+        document.body.style.overflow = 'hidden';
+        
+        // Fermer le backdrop quand on clique dessus
+        backdrop.addEventListener('click', closeCartOffcanvas);
+    }
+}
+
+function closeCartOffcanvas() {
+    const offcanvasElement = document.getElementById('cartOffcanvas');
+    if (offcanvasElement) {
+        offcanvasElement.classList.remove('show');
+        offcanvasElement.style.visibility = 'hidden';
+        offcanvasElement.style.transform = 'translateX(100%)';
+        
+        // Supprimer le backdrop
+        const backdrop = document.querySelector('.offcanvas-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+        
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Sauvegarder les données du formulaire
+    saveCartFormData();
 }
 
 /* METTRE À JOUR LE CONTENU DU PANIER */
@@ -1541,6 +1585,7 @@ function updateCartContent() {
             </div>
         `;
         cartTotalElement.textContent = '0';
+        cartContent.classList.remove('loaded');
         return;
     }
     
@@ -1613,6 +1658,7 @@ function updateCartContent() {
     `;
     
     cartContent.innerHTML = itemsHtml + formHtml;
+    cartContent.classList.add('loaded');
     
     // Attacher les événements
     attachCartEvents();
@@ -1745,11 +1791,11 @@ function removeCartItem(idx) {
         if (result.isConfirmed) {
             cart.splice(idx,1);
             updateBadge();
-            updateCartContent();
             
             if (cart.length === 0) {
-                const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('cartOffcanvas'));
-                if (offcanvas) offcanvas.hide();
+                closeCartOffcanvas();
+            } else {
+                updateCartContent();
             }
         }
     });
@@ -1798,8 +1844,7 @@ function checkout() {
     localStorage.removeItem('cartDelivery');
     
     // Fermer l'offcanvas
-    const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('cartOffcanvas'));
-    if (offcanvas) offcanvas.hide();
+    closeCartOffcanvas();
     
     setTimeout(() => {
         window.open(`https://wa.me/212661906684?text=${msg}`, "_blank");
@@ -1825,24 +1870,26 @@ document.addEventListener('DOMContentLoaded', function() {
     updateFilterBadge();
     updateBadge();
     
-    // Gérer l'ouverture du panier
-    const cartButton = document.querySelector('[data-bs-target="#cartOffcanvas"]');
+    // Gérer le bouton du panier
+    const cartButton = document.getElementById('cartButton');
     if (cartButton) {
-        cartButton.addEventListener('click', function() {
-            updateCartContent();
-        });
+        cartButton.addEventListener('click', openCartOffcanvas);
     }
     
-    // Gérer la fermeture du panier
-    document.getElementById('cartOffcanvas')?.addEventListener('hidden.bs.offcanvas', function () {
-        saveCartFormData();
-    });
+    // Récupérer les données de livraison sauvegardées
+    const savedDelivery = localStorage.getItem('cartDelivery');
+    if (savedDelivery) {
+        deliveryCost = parseInt(savedDelivery) || 0;
+    }
     
     if (window.location.hash) {
         setTimeout(() => {
             window.scrollTo(0, 0);
         }, 100);
     }
+    
+    // Debug pour Chrome
+    console.log('Application initialisée - Chrome compatible');
 });
 </script>
 

@@ -380,11 +380,11 @@ transform:scale(1.2);
 
 .swal2-html-container {
     overflow-y: auto !important;
-    max-height: calc(60vh - 120px) !important;
     flex-grow: 1 !important;
     margin: 0 !important;
     padding: 1rem 1.5rem !important;
     font-size: 1rem !important;
+    max-height: none !important;
 }
 
 .swal2-actions {
@@ -408,6 +408,8 @@ transform:scale(1.2);
     font-weight: bold !important;
     border-radius: 20px !important;
     margin: 0 !important;
+    flex: 1 !important;
+    max-width: 200px !important;
 }
 
 .swal2-confirm {
@@ -614,7 +616,7 @@ footer .fixed-text {
   display:block;
 }
 
-/* AMÉLIORATIONS MOBILE */
+/* AMÉLIORATIONS MOBILE - MODALE PLEINE ÉCRAN */
 @media (max-width: 768px) {
     body {
         padding-top: 70px;
@@ -640,23 +642,65 @@ footer .fixed-text {
         font-size: 1.2rem;
     }
     
-    /* Ajuster la modale panier pour mobile */
+    /* MODALE PLEINE ÉCRAN SUR MOBILE */
+    .swal2-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+    }
+    
     .swal2-popup {
-        width: 98% !important;
-        margin: 0 5px !important;
-        max-width: 95% !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
     
-    /* Ajuster la taille des boutons sur mobile */
-    .swal2-actions button {
-        padding: 0.4rem 1.2rem !important;
-        font-size: 0.9rem !important;
+    .swal2-header {
+        padding: 1rem 1.5rem !important;
+        border-bottom: 2px solid var(--vert) !important;
+        flex-shrink: 0 !important;
     }
     
-    /* Ajuster les éléments du panier sur mobile */
+    .swal2-title {
+        font-size: 1.4rem !important;
+    }
+    
+    .swal2-html-container {
+        flex-grow: 1 !important;
+        overflow-y: auto !important;
+        padding: 1rem 1.5rem !important;
+        max-height: none !important;
+    }
+    
+    .swal2-actions {
+        padding: 1rem !important;
+        flex-wrap: nowrap !important;
+        gap: 10px !important;
+        border-top: 2px solid var(--vert) !important;
+    }
+    
+    .swal2-confirm, .swal2-cancel {
+        flex: 1 !important;
+        padding: 0.6rem !important;
+        font-size: 0.95rem !important;
+        margin: 0 !important;
+    }
+    
+    /* Ajuster les éléments du panier pour mobile */
     .swal2-html-container .cart-item-top img {
-        width: 45px !important;
-        height: 45px !important;
+        width: 50px !important;
+        height: 50px !important;
     }
     
     .swal2-html-container .cart-item-bottom {
@@ -681,6 +725,11 @@ footer .fixed-text {
     footer .fixed-text {
         font-size: 0.8rem;
     }
+    
+    /* Ajuster la hauteur du contenu pour éviter le débordement */
+    .swal2-html-container {
+        max-height: calc(100vh - 150px) !important;
+    }
 }
 
 /* Pour les très petits écrans */
@@ -703,6 +752,16 @@ footer .fixed-text {
         font-size: 1.3rem !important;
     }
     
+    .swal2-actions {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    
+    .swal2-confirm, .swal2-cancel {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
     /* Ajustements supplémentaires pour très petits écrans */
     .product-name {
         font-size: 1rem;
@@ -715,6 +774,46 @@ footer .fixed-text {
     .qty {
         width: 40px;
     }
+    
+    /* Ajuster les champs de formulaire pour mobile */
+    .swal2-html-container input,
+    .swal2-html-container select,
+    .swal2-html-container textarea {
+        padding: 0.6rem 0.8rem !important;
+        font-size: 1rem !important;
+    }
+}
+
+/* Pour les tablettes en mode portrait */
+@media (min-width: 481px) and (max-width: 768px) {
+    .swal2-popup {
+        width: 95% !important;
+        height: 90% !important;
+        margin: auto !important;
+        border-radius: 20px !important;
+    }
+    
+    .swal2-container {
+        padding: 20px !important;
+    }
+}
+
+/* Styles pour améliorer la scrollabilité sur mobile */
+.swal2-html-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.swal2-html-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.swal2-html-container::-webkit-scrollbar-thumb {
+    background: var(--vert);
+    border-radius: 10px;
+}
+
+.swal2-html-container::-webkit-scrollbar-thumb:hover {
+    background: #0c6b40;
 }
 </style>
 </head>
@@ -1308,7 +1407,7 @@ function openCart() {
     renderCartModal();
 }
 
-/* RENDU DE LA MODALE PANIER */
+/* RENDU DE LA MODALE PANIER - VERSION PLEINE ÉCRAN MOBILE */
 function renderCartModal() {
     let total = cart.reduce((a,b) => a + b.price * b.qty, 0);
     
@@ -1335,6 +1434,9 @@ function renderCartModal() {
         </div>`;
     });
 
+    // Options pour mobile vs desktop
+    const isMobile = window.innerWidth <= 768;
+    
     Swal.fire({
         title: 'Votre panier',
         html: `
@@ -1368,6 +1470,17 @@ function renderCartModal() {
             document.getElementById('tel').addEventListener('input', saveCartFormData);
             document.getElementById('comment').addEventListener('input', saveCartFormData);
             
+            // Sur mobile, ajuster la hauteur du contenu
+            if (isMobile) {
+                const htmlContainer = document.querySelector('.swal2-html-container');
+                if (htmlContainer) {
+                    const headerHeight = document.querySelector('.swal2-header').offsetHeight;
+                    const actionsHeight = document.querySelector('.swal2-actions').offsetHeight;
+                    const availableHeight = window.innerHeight - headerHeight - actionsHeight - 30;
+                    htmlContainer.style.maxHeight = availableHeight + 'px';
+                }
+            }
+            
             setTimeout(() => {
                 document.getElementById('nom').focus();
             }, 300);
@@ -1377,7 +1490,30 @@ function renderCartModal() {
             startAllAutoSlides();
         },
         heightAuto: false,
-        allowOutsideClick: true
+        allowOutsideClick: true,
+        // Ajustements pour mobile
+        width: isMobile ? '100%' : '95%',
+        maxWidth: isMobile ? '100%' : '500px',
+        padding: isMobile ? '0' : undefined,
+        backdrop: true,
+        allowEscapeKey: true
+    }).then((result) => {
+        // Ajuster le style après l'ouverture pour mobile
+        if (isMobile) {
+            const popup = document.querySelector('.swal2-popup');
+            if (popup) {
+                popup.style.borderRadius = '0';
+                popup.style.margin = '0';
+                popup.style.height = '100vh';
+                popup.style.maxHeight = '100vh';
+            }
+            
+            const container = document.querySelector('.swal2-container');
+            if (container) {
+                container.style.alignItems = 'flex-start';
+                container.style.justifyContent = 'flex-start';
+            }
+        }
     });
 }
 
@@ -1538,6 +1674,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Vérifier si le panier est vide au démarrage
     updateBadge();
+});
+
+// Redimensionnement de la fenêtre
+window.addEventListener('resize', function() {
+    // Si la modale panier est ouverte et on passe en mode mobile, ajuster
+    if (isCartModalOpen && window.innerWidth <= 768) {
+        const popup = document.querySelector('.swal2-popup');
+        if (popup) {
+            popup.style.width = '100%';
+            popup.style.maxWidth = '100%';
+            popup.style.height = '100vh';
+            popup.style.borderRadius = '0';
+            popup.style.margin = '0';
+        }
+    }
 });
 </script>
 

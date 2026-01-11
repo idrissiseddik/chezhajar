@@ -613,6 +613,109 @@ footer .fixed-text {
   font-weight: bold;
   display:block;
 }
+
+/* AMÉLIORATIONS MOBILE */
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px;
+        padding-bottom: 80px;
+    }
+    
+    header h5 {
+        font-size: 1rem;
+    }
+    
+    .card {
+        margin-bottom: 15px;
+    }
+    
+    .product-carousel-container {
+        height: 180px;
+    }
+    
+    /* Ajuster les boutons du carousel pour mobile */
+    .carousel-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 1.2rem;
+    }
+    
+    /* Ajuster la modale panier pour mobile */
+    .swal2-popup {
+        width: 98% !important;
+        margin: 0 5px !important;
+        max-width: 95% !important;
+    }
+    
+    /* Ajuster la taille des boutons sur mobile */
+    .swal2-actions button {
+        padding: 0.4rem 1.2rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Ajuster les éléments du panier sur mobile */
+    .swal2-html-container .cart-item-top img {
+        width: 45px !important;
+        height: 45px !important;
+    }
+    
+    .swal2-html-container .cart-item-bottom {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .swal2-html-container .cart-item-bottom .quantity-container {
+        min-width: 110px;
+    }
+    
+    .swal2-html-container .cart-item-bottom .item-total {
+        min-width: 60px;
+    }
+    
+    /* Footer mobile */
+    footer {
+        font-size: 0.85rem;
+        padding: 8px 0;
+    }
+    
+    footer .fixed-text {
+        font-size: 0.8rem;
+    }
+}
+
+/* Pour les très petits écrans */
+@media (max-width: 480px) {
+    .product-carousel-container {
+        height: 160px;
+    }
+    
+    .swal2-html-container .cart-item-bottom {
+        justify-content: center;
+    }
+    
+    .swal2-html-container .cart-item-bottom .quantity-container {
+        min-width: 100%;
+        justify-content: center;
+        margin-bottom: 5px;
+    }
+    
+    .swal2-title {
+        font-size: 1.3rem !important;
+    }
+    
+    /* Ajustements supplémentaires pour très petits écrans */
+    .product-name {
+        font-size: 1rem;
+    }
+    
+    .product-price {
+        font-size: 1.1rem;
+    }
+    
+    .qty {
+        width: 40px;
+    }
+}
 </style>
 </head>
 
@@ -844,6 +947,7 @@ const products = [
 let cart = [];
 let allIntervals = [];
 let currentFilter = 'all';
+let isCartModalOpen = false;
 
 /* FONCTIONS POUR LE MODAL D'IMAGE */
 function openModal(imageSrc) {
@@ -1187,13 +1291,20 @@ function updateBadge(){
     cart.reduce((a,b)=>a+b.qty,0);
 }
 
-/* OUVRIR PANIER - NOUVELLE VERSION AVEC MISE À JOUR DYNAMIQUE */
+/* OUVRIR PANIER */
 function openCart() {
     if(cart.length===0){
-        Swal.fire('Panier vide','','info');
+        Swal.fire({
+            title: 'Panier vide',
+            text: 'Votre panier est actuellement vide',
+            icon: 'info',
+            timer: 1500,
+            showConfirmButton: false
+        });
         return;
     }
 
+    isCartModalOpen = true;
     renderCartModal();
 }
 
@@ -1262,9 +1373,11 @@ function renderCartModal() {
             }, 300);
         },
         willClose: () => {
+            isCartModalOpen = false;
             startAllAutoSlides();
         },
-        heightAuto: false
+        heightAuto: false,
+        allowOutsideClick: true
     });
 }
 
@@ -1323,7 +1436,7 @@ function updateCartTotal() {
     }
 }
 
-/* SUPPRIMER AVEC CONFIRMATION */
+/* SUPPRIMER AVEC CONFIRMATION - VERSION MOBILE FRIENDLY */
 function confirmRemove(i){
     Swal.fire({
         title:'Supprimer ce produit ?',
@@ -1332,15 +1445,25 @@ function confirmRemove(i){
         showCancelButton:true,
         confirmButtonText:'Oui, supprimer',
         cancelButtonText:'Non',
-        confirmButtonColor: '#dc3545'
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
     }).then((result)=>{
         if(result.isConfirmed){
             cart.splice(i,1);
             updateBadge();
             
             if (cart.length === 0) {
+                // Fermer la modale et montrer un message
                 Swal.close();
-                Swal.fire('Panier vide', 'Votre panier est maintenant vide', 'info');
+                setTimeout(() => {
+                    Swal.fire({
+                        title: 'Panier vide',
+                        text: 'Votre panier est maintenant vide',
+                        icon: 'info',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }, 100);
             } else {
                 // Fermer et rouvrir la modale pour rafraîchir
                 Swal.close();
@@ -1380,30 +1503,41 @@ function sendOrder(){
     if(comment) msg+=`Commentaire: ${comment}%0A`;
     msg+=`%0A📱 _Commande passée via le site web_`;
 
-    window.open(`https://wa.me/212661906684?text=${msg}`,"_blank");
-
     // Nettoyer le localStorage
     localStorage.removeItem('cartNom');
     localStorage.removeItem('cartAdresse');
     localStorage.removeItem('cartTel');
     localStorage.removeItem('cartComment');
     
+    // Vider le panier
     cart=[];
     updateBadge();
-    Swal.fire({
-        title: 'Merci ! 🙏',
-        text: 'Votre commande a été envoyée au vendeur',
-        icon: 'success',
-        timer: 2000,
-        showConfirmButton: false
-    });
-    renderProducts();
+    
+    // Fermer la modale
+    Swal.close();
+    
+    // Ouvrir WhatsApp après un court délai
+    setTimeout(() => {
+        window.open(`https://wa.me/212661906684?text=${msg}`,"_blank");
+        
+        // Afficher un message de confirmation
+        Swal.fire({
+            title: 'Merci ! 🙏',
+            text: 'Votre commande a été envoyée au vendeur',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }, 300);
 }
 
 // Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     renderProducts();
     updateFilterBadge();
+    
+    // Vérifier si le panier est vide au démarrage
+    updateBadge();
 });
 </script>
 

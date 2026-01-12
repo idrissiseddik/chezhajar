@@ -901,8 +901,8 @@ footer .fixed-text {
         <button class="btn btn-outline-success btn-sm" onclick="filterProducts('safran')">
             <i class="fas fa-seedling"></i> Safran
         </button>
-        <button class="btn btn-outline-success btn-sm" onclick="filterProducts('henné')">
-            <i class="fas fa-leaf"></i> Henné
+        <button class="btn btn-outline-success btn-sm" onclick="filterProducts('beauté')">
+            <i class="fas fa-leaf"></i> Beauté
         </button>
     </div>
 </div>
@@ -980,6 +980,30 @@ footer .fixed-text {
 <script>
 /* PRODUITS avec plusieurs images et grammage */
 const products = [
+{
+    id: 11,
+    name: "سواك كركاع تنغير",
+    price: 10,
+    weight: "250g",
+    category: "beauté",
+    outOfStock: false,
+    images: [
+        "images/siwak1.jpg",
+        "images/siwak2.jpg"
+    ]
+},
+{
+    id: 10,
+    name: "كحل حار و حلو",
+    price: 10,
+    weight: "250g",
+    category: "beauté",
+    outOfStock: false,
+    images: [
+        "images/ko7l1.jpg",
+        "images/ko7l2.jpg"
+    ]
+},
 {
     id: 9,
     name: "Amlou Amandes",
@@ -1063,12 +1087,11 @@ const products = [
     name: "Henné pour les cheveux",
     price: 50,
     weight: "1Kg",
-    category: "henné",
+    category: "beauté",
     outOfStock: false,
     images: [
         "images/henne1.jpg",
-        "images/henne2.jpg",
-        "images/henne3.jpg"
+        "images/henne2.jpg"
     ]
 },
 {
@@ -1076,12 +1099,11 @@ const products = [
     name: "Henné pour le corps",
     price: 50,
     weight: "1Kg",
-    category: "henné",
+    category: "beauté",
     outOfStock: false,
     images: [
         "images/henne1.jpg",
-        "images/henne2.jpg",
-        "images/henne3.jpg"
+        "images/henne2.jpg"
     ]
 },
 {
@@ -1277,7 +1299,7 @@ function filterProducts(category) {
                       category === 'amlou' ? 'Amlou' : 
                       category === 'safran' ? 'Safran' : 
                       category === 'miel' ? 'Miel' : 
-                      category === 'henné' ? 'Henné' : 'Huiles';
+                      category === 'beauté' ? 'Beauté' : 'Huiles';
     
     const marquee = document.querySelector('.marquee');
     if (marquee) {
@@ -1308,7 +1330,7 @@ function updateFilterBadge() {
     if (filterElement) {
         const filterText = currentFilter === 'amlou' ? 'Amlou' : 
                           currentFilter === 'safran' ? 'Safran' :
-                          currentFilter === 'henné' ? 'Henné' :
+                          currentFilter === 'beauté' ? 'Beauté' :
                           currentFilter === 'miel' ? 'Miel' : 'Huiles';
         filterElement.textContent = filterText;
     }
